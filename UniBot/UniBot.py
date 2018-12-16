@@ -12,7 +12,7 @@ class UniBot:
 		update.message.reply_text(message)
 
 	def start(self, bot, update):
-		update.message.reply_text("""
+		self.sendMessage(update, """
 	        Willkommen {}
 	Befehle:
 	/add FACH um ein neues Fach erstellen
@@ -20,7 +20,7 @@ class UniBot:
 	        """.format(update.message.from_user.first_name))
 
 	def hello(self, bot, update):
-	    update.message.reply_text(
+	    self.sendMessage(update,
 	        'Hello {}'.format(update.message.from_user.first_name))
 
 	def add(self, bot, update, args):
@@ -38,12 +38,12 @@ class UniBot:
 
 		self.saveEntry(args[0])
 
-		update.message.reply_text(str(args[0]) + ' wurde hinzugefügt. ')
+		self.sendMessage(update, str(args[0]) + ' wurde hinzugefügt. ')
 
 	def errorHandler(self, update, error):
-		update.message.reply_text("Fehler: " + error)
+		self.sendMessage(update, "Fehler: " + error)
 
-	def deleteFach(self, fach, update):
+	def deleteFach(self, update, fach):
 		if fach not in self.entries:
 			self.errorHandler("Verschrieben? Dieses Fach existiert nicht!")
 		else:
