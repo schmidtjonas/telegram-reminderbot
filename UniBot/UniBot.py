@@ -1,4 +1,5 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler
+
+	def loadEntries(self):from telegram.ext import Updater, CommandHandler, MessageHandler
 
 class UniBot:
 	def __init__(self):
@@ -51,6 +52,8 @@ class UniBot:
 			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 		else:
 			self.entries.remove(fach)
+			self.saveEntries()
+			self.sendMessage(update, fach + "wurde gelöscht!")
 
 	def saveEntries(self):
 		with open(self.file, "a") as file:
@@ -62,7 +65,6 @@ class UniBot:
 		with open(self.file, "a") as file:
 			file.write(entry + "\n")
 
-	def loadEntries(self):
 		with open(self.file, "r") as file:
 			entries = file.readlines()
 		entries = [i[:-1] for i in entries]
