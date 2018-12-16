@@ -2,7 +2,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler
 
 class UniBot:
 	def __init__(self):
-		file = "faecher.txt"
+		self.file = "faecher.txt"
 		self.entries = []
 
 	def start(self, bot, update):
@@ -26,7 +26,7 @@ class UniBot:
 		else:
 			errorHandler(update, "Fach existiert bereits!")
 
-		self.saveEntries()
+		self.saveEntry(args[0])
 
 		update.message.reply_text(str(args) + 'Wurde hinzugefügt. ')
 
@@ -40,9 +40,14 @@ class UniBot:
 			self.entries.remove(fach)
 
 	def saveEntries(self):
-		
+		with open(self.file, "a") as file:
+			file.write("")
 
 		return
+
+	def saveEntry(self, entry):
+		with open(self.file, "a") as file:
+			file.write("\n" + entry)
 
 
 b = UniBot()
