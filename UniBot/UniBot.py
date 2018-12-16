@@ -75,8 +75,6 @@ class UniBot:
 	def deleteFach(self, bot, update, args):
 		print('del')
 		fach = " ".join(args)
-		if fach not in [repr(i) for i in self.entries]:
-			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 		else:
 			self.entries = [i for i in self.entries if i.fach != fach]
 			self.saveEntries()
@@ -102,6 +100,15 @@ class UniBot:
 
 		print(entries)
 		return entries
+
+	def findEntry(self, fach):
+		for i in self.entries:
+			if i.fach == fach:
+				return i
+
+		self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
+		return None
+
 
 
 ####################
