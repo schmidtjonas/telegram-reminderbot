@@ -62,8 +62,9 @@ class UniBot:
 		return
 
 	def saveEntry(self, entry):
-		with open(self.file, "a") as file:
-			file.write(entry + "\n")
+		with open(self.file, "w") as file:
+			for entry in self.entries:
+				file.write(entry + "\n")
 
 		with open(self.file, "r") as file:
 			entries = file.readlines()
