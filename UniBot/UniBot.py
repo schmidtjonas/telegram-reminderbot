@@ -1,9 +1,37 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler
+from datetime import datetime
+
+
+class Entry:
+	def __init__(self, fach, ersteller, subscribers = []):
+		print("create Entry")
+		self.fach = fach
+		self.ersteller = ersteller
+		self.datum = datetime.now().strftime('%Y-%m-%d')
+		self.subscribers = subscribers
+		#self.save()
+		print(self)
+
+
+	def save(self):
+		print("save",self.fach)
+		with open(file, "a") as f:
+			
+				f.write(str(self) + "\n")
+
+		return
+
+	def __str__(self):
+		return self.fach + "|" + str(self.ersteller) + "|" + str(self.datum) + "|" + str(self.subscribers)
+
+	def __repr__(self):
+		return self.fach
+
+
+
 
 class UniBot:
 	def __init__(self):
-
-		self.file = "faecher.txt"
 
 		
 		self.entries = self.loadEntries()
@@ -25,57 +53,59 @@ class UniBot:
 
 	def add(self, bot, update, args):
 		print('add')
-		if len(args) != 1:
-			self.errorHandler(update, "Gib bitte genau ein Fach an!")
-			return
-		elif args[0] == " ":
-			self.errorHandler(update, "Gib bitte genau ein Fach an!")
-			return
-		if args[0] not in self.entries:
-			self.entries.append(args[0])
-		else:
+
+		args = " ".join(args)
+
+		if args in self.entries:
 			self.errorHandler(update, "Fach existiert bereits!")
 			return
 
-		self.saveEntry(args[0])
+		print(args, update.message.from_user.id)
 
-		self.sendMessage(update, str(args[0]) + ' wurde hinzugefügt. ')
+		e = Entry(args, str(update.message.from_user.id))
+		self.entries.append(e)
+
+		e.save()
+
+		self.sendMessage(update, str(args) + ' wurde hinzugefügt. ')
 
 	def errorHandler(self, update, error):
 		self.sendMessage(update, "Fehler: " + error)
 
 	def deleteFach(self, bot, update, args):
 		print('del')
-		fach = args[0]
-		if fach not in self.entries:
+		fach = " ".join(args)
+		if fach not in [repr(i) for i in self.entries]:
 			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 		else:
-			self.entries.remove(fach)
+			self.entries = [i for i in self.entries if i.fach != fach]
 			self.saveEntries()
-			self.sendMessage(update, fach + "wurde gelöscht!")
+			self.sendMessage(update, fach + " wurde gelöscht!")
 
 	def saveEntries(self):
-		with open(self.file, "a") as file:
+		with open(file, "w") as f:
 			for entry in self.entries:
-				file.write(entry + "\n")
+				f.write(str(entry) + "\n")
 
 		return
 
-	def saveEntry(self, entry):
-		with open(self.file, "w") as file:
-			
-				file.write(entry + "\n")
-
-		return
 
 	def loadEntries(self):
-		with open(self.file, "r") as file:
-			entries = file.readlines()
-		entries = [i[:-1] for i in entries]
+		with open(file, "r") as f:
+			fileinhalt = f.readlines()
+
+
+		entries = []
+		for entry in fileinhalt:
+			e = entry.split("|")
+			entries.append(Entry(e[0],e[1]))
+
 		print(entries)
 		return entries
 
 
+####################
+file = "faecher.txt"
 b = UniBot()
 updater = Updater('773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k')
 
