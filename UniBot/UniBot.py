@@ -2,8 +2,14 @@ from telegram.ext import Updater, CommandHandler, MessageHandler
 
 class UniBot:
 	def __init__(self):
+
 		self.file = "faecher.txt"
-		self.entries = []
+
+		
+		self.entries = self.loadEntries()
+
+	def sendMessage(self, update, message):
+		update.message.reply_text(message)
 
 	def start(self, bot, update):
 		update.message.reply_text("""
@@ -52,6 +58,12 @@ class UniBot:
 	def saveEntry(self, entry):
 		with open(self.file, "a") as file:
 			file.write(entry + "\n")
+
+	def loadEntries(self):
+		with open(self.file, "r") as file:
+			entries = file.readlines()
+		print(entries)
+		return entries
 
 
 b = UniBot()
