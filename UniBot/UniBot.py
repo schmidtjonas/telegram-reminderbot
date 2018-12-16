@@ -9,7 +9,7 @@ class UniBot:
 		update.message.reply_text("""
 	        Willkommen {}
 	Befehle:
-	/add FACH um ein neues Fach hinzuzufügen
+	/add FACH um ein neues Fach erstellen
 
 	        """.format(update.message.from_user.first_name))
 
