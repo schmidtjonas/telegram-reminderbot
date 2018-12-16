@@ -1,38 +1,42 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler
 
+class UniBot:
+	def __init__(self):
+		file = "faecher.txt"
 
+	def start(self, bot, update):
+		update.message.reply_text("""
+	        Willkommen {}
+	Befehle:
+	/add FACH um ein neues Fach hinzuzufügen
 
-def start(bot, update):
-	update.message.reply_text("""
-        Willkommen {}
-Befehle:
-/add FACH um ein neues Fach hinzuzufügen
+	        """.format(update.message.from_user.first_name))
 
-        """.format(update.message.from_user.first_name))
+	def hello(self, bot, update):
+	    update.message.reply_text(
+	        'Hello {}'.format(update.message.from_user.first_name))
 
-def hello(bot, update):
-    update.message.reply_text(
-        'Hello {}'.format(update.message.from_user.first_name))
+	def add(self, bot, update, args):
+		if len(args) != 1:
+			errorHandler(update, "Gib bitte genau ein Fach an!")
+			return
+		update.message.reply_text(str(args) + 'Wurde hinzugefügt. ')
 
-def add(bot, update, args):
-	if len(args) != 1:
-		errorHandler(update, "Gib bitte genau ein Fach an!")
+	def errorHandler(self, update, error):
+		update.message.reply_text(error)
+
+	def saveEntries(self):
+		
+
 		return
-	update.message.reply_text(str(args) + 'Wurde hinzugefügt. ')
-
-def errorHandler(update, error):
-	update.message.reply_text(error)
-
-def saveEntries():
-	return
 
 
-
+b = UniBot()
 updater = Updater('773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k')
 
-updater.dispatcher.add_handler(CommandHandler('hello', hello))
-updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('add', add, pass_args = True))
+updater.dispatcher.add_handler(CommandHandler('hello', b.hello))
+updater.dispatcher.add_handler(CommandHandler('start', b.start))
+updater.dispatcher.add_handler(CommandHandler('add', b.add, pass_args = True))
 
 updater.start_polling()
 updater.idle()
