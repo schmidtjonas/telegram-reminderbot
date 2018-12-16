@@ -76,11 +76,18 @@ class UniBot:
 		print('del')
 		fach = " ".join(args)
 		entry = self.findEntry(fach)
+
+
 		if entry == None:
+			print('error')
+			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 			return
+
 		if str(update.message.from_user.id) != entry.ersteller:
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
+
+
 		self.entries.remove(entry)
 		self.saveEntries()
 		self.sendMessage(update, fach + " wurde gelöscht!")
@@ -108,11 +115,11 @@ class UniBot:
 		return entries
 
 	def findEntry(self, fach):
+		print('find')
 		for i in self.entries:
 			if i.fach == fach:
 				return i
-
-		self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
+		
 		return None
 
 
