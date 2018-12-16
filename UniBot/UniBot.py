@@ -1,4 +1,5 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Bot
 from datetime import datetime
 import pickle
@@ -55,7 +56,9 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
-
+		updater.dispatcher.add_handler(CommandHandler('newtask', self.newTask))
+		updater.dispatcher.add_handler(CommandHandler('newtask-title', self.taskTitle))
+		updater.dispatcher.add_handler(CallbackQueryHandler(self.button))
 
 		updater.start_polling()
 		updater.idle()
@@ -70,6 +73,8 @@ class UniBot:
 	        Willkommen {}
 	Befehle:
 	/add FACH um ein neues Fach erstellen
+	/delete FACH um ein Fach zu löschen
+	/subscribe um ein bestehendes Fach zu abbonieren
 
 	        """.format(update.message.from_user.first_name))
 
@@ -160,6 +165,41 @@ class UniBot:
 					self.entries.append(e)
 				except:
 					break
+
+	def newTask(self, bot, update):
+		print("Hi")
+		keyboard = [
+			[InlineKeyboardButton("Titel", callback_data='1')],
+			[InlineKeyboardButton("Datum", callback_data='2'),InlineKeyboardButton("Uhrzeit", callback_data='3')]]
+
+		reply_markup = InlineKeyboardMarkup(keyboard)
+
+
+		update.message.reply_text('NEUEN TASK ERSTELLEN \n '+
+			'---------------------------------------------------\n' +
+			'1.Gib zuerst den Titel des Tasks an \n' +
+			'2. Gib dann Datum und Uhrzeit des Abgabedatums an \n' +
+			'Anschließend wirst du gefragt werden, ob du noch ein seperates Reminder-Datum angeben möchstest', reply_markup=reply_markup)
+
+	def button(self, bot, update):
+
+		query = update.callback_query
+
+		if int(query.data) == 1:
+			self.sendMessage(update, "Titel ändern: ")
+			return
+		elif int(query.data) == 2:
+			self.sendMessage(update, "Datum ändern: ")
+			return
+		elif int(query.data) == 3:
+			self.sendMessage(update, "Uhrzeit ändern: ")
+			return
+		else:
+			self.errorHandler(update, "Ein unerwarteter Fehler ist aufgetreten!")
+
+
+	def taskTitle(self, bot, update):
+		return
 
 
 
