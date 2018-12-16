@@ -26,6 +26,12 @@ class Entry:
 			return True
 		return False
 
+	def delSubscriber(self, sub):
+		print("desub")
+		if sub in self.subscribers:
+			self.subscribers.remove(sub)
+			return True
+		return False
 
 	def __str__(self):
 		return self.fach + "|" + str(self.ersteller) + "|" + str(self.datum) + "|" + str(self.subscribers)
@@ -56,6 +62,8 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
+		updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
+
 		updater.dispatcher.add_handler(CommandHandler('newtask', self.newTask))
 		updater.dispatcher.add_handler(CommandHandler('newtask-title', self.taskTitle))
 		updater.dispatcher.add_handler(CallbackQueryHandler(self.button))
@@ -144,6 +152,23 @@ class UniBot:
 			self.sendMessage(update, "Du hast "+ fach + " abonniert!")
 		else:
 			self.errorHandler(update, "Du hast dieses Fach bereits abonniert!")
+
+	def unsubscribe(self, bot, update, args):
+		print("unsub")
+		fach = " ".join(args)
+
+		print(fach)
+		entry = self.findEntry(fach)
+
+		if entry == None:
+			print('error')
+			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
+			return
+		if entry.delSubscriber(str(update.message.from_user.id)):
+			self.saveEntriesPkl()
+			self.sendMessage(update, "Du hast "+ fach + " deabonniert!")
+		else:
+			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
 
 
 	def addtask(self, bot, update, args, job_queue, chat_data):
