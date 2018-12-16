@@ -21,6 +21,9 @@ class UniBot:
 		if len(args) != 1:
 			errorHandler(update, "Gib bitte genau ein Fach an!")
 			return
+		elif args[0] == " ":
+			errorHandler(update, "Gib bitte genau ein Fach an!")
+			return
 		if args[0] not in self.entries:
 			self.entries.append(args[0])
 		else:
@@ -28,7 +31,7 @@ class UniBot:
 
 		self.saveEntry(args[0])
 
-		update.message.reply_text(str(args) + 'Wurde hinzugefügt. ')
+		update.message.reply_text(str(args[0]) + 'Wurde hinzugefügt. ')
 
 	def errorHandler(self, update, error):
 		update.message.reply_text("Fehler: " + error)
