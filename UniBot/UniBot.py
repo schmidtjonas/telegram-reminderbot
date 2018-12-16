@@ -56,14 +56,17 @@ class UniBot:
 
 	def saveEntries(self):
 		with open(self.file, "a") as file:
-			file.write("")
+			for entry in self.entries:
+				file.write(entry + "\n")
 
 		return
 
 	def saveEntry(self, entry):
 		with open(self.file, "w") as file:
-			for entry in self.entries:
+			
 				file.write(entry + "\n")
+
+		return
 
 	def loadEntries(self):
 		with open(self.file, "r") as file:
