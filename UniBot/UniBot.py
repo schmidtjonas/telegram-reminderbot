@@ -34,7 +34,10 @@ class UniBot:
 		update.message.reply_text("Fehler: " + error)
 
 	def deleteFach(self, fach, update):
-		self.entries()
+		if fach not in self.entries:
+			errorHandler("Verschrieben? Dieses Fach existiert nicht!")
+		else:
+			self.entries.remove(fach)
 
 	def saveEntries(self):
 		
