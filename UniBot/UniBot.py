@@ -56,6 +56,7 @@ updater = Updater('773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k')
 updater.dispatcher.add_handler(CommandHandler('hello', b.hello))
 updater.dispatcher.add_handler(CommandHandler('start', b.start))
 updater.dispatcher.add_handler(CommandHandler('add', b.add, pass_args = True))
+updater.dispatcher.add_handler(CommandHandler('delete', b.deleteFach, pass_args = True))
 
 updater.start_polling()
 updater.idle()
