@@ -23,7 +23,7 @@ class UniBot:
 		update.message.reply_text(str(args) + 'Wurde hinzugefügt. ')
 
 	def errorHandler(self, update, error):
-		update.message.reply_text(error)
+		update.message.reply_text("Fehler: " + error)
 
 	def saveEntries(self):
 		
