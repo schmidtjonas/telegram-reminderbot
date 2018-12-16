@@ -62,6 +62,7 @@ class UniBot:
 	def loadEntries(self):
 		with open(self.file, "r") as file:
 			entries = file.readlines()
+		entries = [i[:-1] for i in entries]
 		print(entries)
 		return entries
 
