@@ -25,7 +25,9 @@ class UniBot:
 
 	def errorHandler(self, update, error):
 		update.message.reply_text("Fehler: " + error)
-		update.message.reply_text("Fehler2: " + error)
+
+	def deleteFach(self, fach, update):
+		self.entries()
 
 	def saveEntries(self):
 		
