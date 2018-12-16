@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler
 class UniBot:
 	def __init__(self):
 		file = "faecher.txt"
+		self.entries = []
 
 	def start(self, bot, update):
 		update.message.reply_text("""
