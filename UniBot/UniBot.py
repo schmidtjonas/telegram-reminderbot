@@ -1,5 +1,4 @@
-
-	def loadEntries(self):from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler
 
 class UniBot:
 	def __init__(self):
@@ -66,6 +65,7 @@ class UniBot:
 			for entry in self.entries:
 				file.write(entry + "\n")
 
+	def loadEntries(self):
 		with open(self.file, "r") as file:
 			entries = file.readlines()
 		entries = [i[:-1] for i in entries]
