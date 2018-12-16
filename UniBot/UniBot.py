@@ -33,9 +33,9 @@ class Entry:
 		return self.fach
 
 
-	def remind(self, note = ''):
+	def remind(self, bot, job,tex=''):
 		for user in self.subscribers:
-			bot.sendMessage(chat_id=user, text="Reminder: " + self.fach)
+			bot.sendMessage(chat_id=user, text="Reminder: " + self.fach+tex)
 
 
 
@@ -46,7 +46,6 @@ class UniBot:
 		self.entries = []
 		self.loadEntriesPkl()
 		print(self.entries)
-		#self.entries = []
 
 		updater = Updater(token)
 
@@ -55,6 +54,8 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
+		updater.dispatcher.add_handler(CommandHandler('addtask', self.addtask, pass_args = True, pass_job_queue=True, pass_chat_data=True))
+
 
 
 		updater.start_polling()
@@ -138,6 +139,18 @@ class UniBot:
 			self.errorHandler(update, "Du hast dieses Fach bereits abonniert!")
 
 
+	def addtask(self, bot, update, args, job_queue, chat_data):
+
+		fach = " ".join(args[1:])
+		print("addtask", args[0], fach)
+
+		entry = self.findEntry(fach)
+
+		job = job_queue.run_once(entry.remind, int(args[0]), context=update.message.chat_id)
+		chat_data['job'] = job
+
+
+
 	def findEntry(self, fach):
 		print('find')
 		for i in self.entries:
@@ -160,6 +173,7 @@ class UniBot:
 					self.entries.append(e)
 				except:
 					break
+
 
 
 
