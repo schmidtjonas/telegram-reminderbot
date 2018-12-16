@@ -34,9 +34,10 @@ class Entry:
 		return self.fach
 
 
-	def remind(self, bot, job,tex=''):
+	def remind(self, bot, job):
+		print('remind')
 		for user in self.subscribers:
-			bot.sendMessage(chat_id=user, text="Reminder: " + self.fach+tex)
+			bot.sendMessage(chat_id=user, text="Reminder " + self.fach + ": " + job.context)
 
 
 
@@ -147,13 +148,16 @@ class UniBot:
 
 	def addtask(self, bot, update, args, job_queue, chat_data):
 
-		fach = " ".join(args[1:])
-		print("addtask", args[0], fach)
+		fach = " ".join(args[2:])
+		print("addtask", args[0], args[1], fach)
 
 		entry = self.findEntry(fach)
 
-		job = job_queue.run_once(entry.remind, int(args[0]), context=update.message.chat_id)
+		job = job_queue.run_once(entry.remind, int(args[0]), context=args[1])
 		chat_data['job'] = job
+
+		self.sendMessage(update, "Du hast die Task "+ args[1] + " in " + fach + " hinzugefügt!")
+
 
 
 
