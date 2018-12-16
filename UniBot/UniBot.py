@@ -24,6 +24,7 @@ class UniBot:
 	        'Hello {}'.format(update.message.from_user.first_name))
 
 	def add(self, bot, update, args):
+		print('add')
 		if len(args) != 1:
 			self.errorHandler(update, "Gib bitte genau ein Fach an!")
 			return
@@ -43,9 +44,11 @@ class UniBot:
 	def errorHandler(self, update, error):
 		self.sendMessage(update, "Fehler: " + error)
 
-	def deleteFach(self, update, fach):
+	def deleteFach(self, bot, update, args):
+		print('del')
+		fach = args[0]
 		if fach not in self.entries:
-			self.errorHandler("Verschrieben? Dieses Fach existiert nicht!")
+			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 		else:
 			self.entries.remove(fach)
 
