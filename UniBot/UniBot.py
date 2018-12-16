@@ -75,6 +75,7 @@ class UniBot:
 	def deleteFach(self, bot, update, args):
 		print('del')
 		fach = " ".join(args)
+<<<<<<< HEAD
 		entry = self.findEntry(fach)
 		if entry == None:
 			return
@@ -84,6 +85,12 @@ class UniBot:
 		self.entries.remove(entry)
 		self.saveEntries()
 		self.sendMessage(update, fach + " wurde gelöscht!")
+=======
+		else:
+			self.entries = [i for i in self.entries if i.fach != fach]
+			self.saveEntries()
+			self.sendMessage(update, fach + " wurde gelöscht!")
+>>>>>>> 7557d26de4a7a69b419e651f4d4d4b224252aad2
 
 	def saveEntries(self):
 		with open(file, "w") as f:
@@ -105,6 +112,15 @@ class UniBot:
 
 		print(entries)
 		return entries
+
+	def findEntry(self, fach):
+		for i in self.entries:
+			if i.fach == fach:
+				return i
+
+		self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
+		return None
+
 
 
 ####################
