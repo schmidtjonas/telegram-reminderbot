@@ -75,12 +75,15 @@ class UniBot:
 	def deleteFach(self, bot, update, args):
 		print('del')
 		fach = " ".join(args)
-		if fach not in [repr(i) for i in self.entries]:
-			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
-		else:
-			self.entries = [i for i in self.entries if i.fach != fach]
-			self.saveEntries()
-			self.sendMessage(update, fach + " wurde gelöscht!")
+		entry = self.findEntry(fach)
+		if entry == None:
+			return
+		if str(update.message.from_user.id) != entry.ersteller:
+			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
+			return
+		self.entries.remove(entry)
+		self.saveEntries()
+		self.sendMessage(update, fach + " wurde gelöscht!")
 
 	def saveEntries(self):
 		with open(file, "w") as f:
