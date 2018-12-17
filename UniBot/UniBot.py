@@ -27,7 +27,6 @@ class Entry:
 		return False
 
 	def delSubscriber(self, sub):
-		print("desub")
 		if sub in self.subscribers:
 			self.subscribers.remove(sub)
 			return True
@@ -248,7 +247,6 @@ class UniBot:
 
 
 ####################
-file = "faecher.txt"
 token = '773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k'
 
 bot = Bot(token)
