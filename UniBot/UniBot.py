@@ -44,8 +44,20 @@ class Entry:
 		for user in self.subscribers:
 			bot.sendMessage(chat_id=user, text="Reminder " + self.fach + ": " + job.context)
 
+class Task:
+	def __init__(self, ersteller, titel, datum , uhrzeit, reminder = None):
+		self.ersteller = ersteller
 
+		self.titel = titel
+		self.datum = datum
+		self.uhrzeit = uhrzeit
 
+		if reminder == none:
+			self.reminder = int(datetime.datetime.strptime(self.datum +' ' +self.uhrzeit, '%Y-%m-%d %H:%M')
+		self.reminder = reminder
+
+	def __str__(self):
+		return self.titel + "|" + str(self.ersteller) + "|" + str(self.datum) + "|" + str(self.uhrzeit) +"|" + str(self.reminder)
 
 class UniBot:
 	def __init__(self):
@@ -85,6 +97,7 @@ class UniBot:
 	/add FACH um ein neues Fach erstellen
 	/delete FACH um ein Fach zu löschen
 	/subscribe um ein bestehendes Fach zu abbonieren
+	/newtask um einen neuen Task anzulegen
 
 	        """.format(update.message.from_user.first_name))
 
@@ -228,7 +241,7 @@ class UniBot:
 		query = update.callback_query
 
 		if int(query.data) == 1:
-			self.sendMessage(update, "Titel ändern: ")
+			self.taskTitle
 			return
 		elif int(query.data) == 2:
 			self.sendMessage(update, "Datum ändern: ")
@@ -250,6 +263,7 @@ class UniBot:
 token = '773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k'
 
 bot = Bot(token)
+
 
 
 b = UniBot()
