@@ -53,9 +53,11 @@ class Task:
 		self.uhrzeit = uhrzeit
 
 		if reminder == none:
-			self.reminder = int(datetime.datetime.strptime(self.datum +' ' +self.uhrzeit, '%Y-%m-%d %H:%M')
+			self.reminder = int(datetime.datetime.strptime(self.datum +' ' +self.uhrzeit, '%Y-%m-%d %H:%M'))
 		else:
 			self.reminder = reminder
+
+		
 
 
 	def __str__(self):
