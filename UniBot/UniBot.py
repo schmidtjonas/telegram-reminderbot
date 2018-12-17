@@ -1,8 +1,16 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram import Bot
+from telegram import Bot, Chat
 from datetime import datetime
 import pickle
+import time
+
+
+def sendOperationtoAdmins(message):
+	
+
+	bot.send_message(chat_id=group, text=message)
+
 
 
 class Entry:
@@ -64,13 +72,22 @@ class Task:
 		return self.titel + "|" + str(self.ersteller) + "|" + str(self.datum) + "|" + str(self.uhrzeit) +"|" + str(self.reminder)
 
 class UniBot:
-	def __init__(self):
+	def __init__(self, createNewFile = False):
 
+		self.lukas = '507305205'
+		self.robert = '672114483'
+		self.admin = ['691400978', '636733660'] #jonas, rohan
 		self.entries = []
-		self.loadEntriesPkl()
-		print(self.entries)
+		if not createNewFile:
+			self.loadEntriesPkl()
+			print(self.entries)
+		else:
+			self.saveEntriesPkl()
 
 		updater = Updater(token)
+
+		#self.spamLukas()
+
 
 		updater.dispatcher.add_handler(CommandHandler('hello', self.hello))
 		updater.dispatcher.add_handler(CommandHandler('start', self.start))
@@ -118,7 +135,7 @@ class UniBot:
 			self.errorHandler(update, "Fach existiert bereits!")
 			return
 
-		print(fach, update.message.from_user.id)
+		sendOperationtoAdmins('add: '+fach+ ', ' + str(update.message.from_user.first_name))
 
 		e = Entry(fach, str(update.message.from_user.id))
 		self.entries.append(e)
@@ -142,7 +159,7 @@ class UniBot:
 			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 			return
 
-		if str(update.message.from_user.id) != entry.ersteller:
+		if str(update.message.from_user.id) != entry.ersteller and str(update.message.from_user.id) not in self.admin:
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
 
@@ -150,6 +167,8 @@ class UniBot:
 		self.entries.remove(entry)
 		self.saveEntriesPkl()
 		self.sendMessage(update, fach + " wurde gelöscht!")
+		sendOperationtoAdmins('del: '+fach+ ', '+ str(update.message.from_user.first_name))
+
 
 	def subscribe(self, bot, update, args):
 		print("sub")
@@ -166,6 +185,7 @@ class UniBot:
 		if entry.addSubcriber(str(update.message.from_user.id)):
 			self.saveEntriesPkl()
 			self.sendMessage(update, "Du hast "+ fach + " abonniert!")
+			sendOperationtoAdmins('sub: '+fach+ ', '+ str(update.message.from_user.first_name))
 		else:
 			self.errorHandler(update, "Du hast dieses Fach bereits abonniert!")
 
@@ -183,6 +203,8 @@ class UniBot:
 		if entry.delSubscriber(str(update.message.from_user.id)):
 			self.saveEntriesPkl()
 			self.sendMessage(update, "Du hast "+ fach + " deabonniert!")
+			sendOperationtoAdmins('desub: '+fach+ ', '+ str(update.message.from_user.first_name))
+
 		else:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
 
@@ -198,6 +220,7 @@ class UniBot:
 		chat_data['job'] = job
 
 		self.sendMessage(update, "Du hast die Task "+ args[1] + " in " + fach + " hinzugefügt!")
+		sendOperationtoAdmins('addtask: '+args[1] +' in ' +fach+ ', '+ str(update.message.from_user.first_name) + ' in ' + args[0])
 
 
 
@@ -260,17 +283,34 @@ class UniBot:
 	def taskTitle(self, bot, update):
 		return
 
+	def spamLukas(self):
+		time.sleep(3)
+		while True:
+			print("spam")
+			time.sleep(0.1)
+			#print("Hallo"+ self.lukas)
+			bot.sendMessage(chat_id=self.robert, text="Hier ist CT. Du hast 5,0 in Mathe.")
+
+
+
 
 
 
 ####################
-token = '773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k'
+token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
+
+token2 = '773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k'
 
 bot = Bot(token)
 
 
+testbot = Bot(token2)
 
-b = UniBot()
+group = '-385326743'
+chat = Chat(group, 'group')
+
+
+b = UniBot() # True als Parameter erstellt ein komplett neues File
 
 
 
