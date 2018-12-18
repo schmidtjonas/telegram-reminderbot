@@ -119,7 +119,7 @@ class UniBot:
 	def start(self, bot, update):
 		self.sendMessage(update, """
 	        Willkommen {}
-	Befehle:
+	**Befehle:**
 	/add FACH um ein neues Fach erstellen
 	/delete FACH um ein Fach zu löschen
 	/subscribe um ein bestehendes Fach zu abbonieren
@@ -214,7 +214,7 @@ class UniBot:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
 
 	def faecher(self, bot, update):
-		text = ""
+		text = "**Übersicht aller verfügbaren Fächer: **\n \n"
 
 		for entry in self.entries:
 			text += "\n" + entry.fach
