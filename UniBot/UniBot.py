@@ -93,7 +93,7 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('start', self.start))
 		updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
-		updater.dispatcher.add_handler(CommandHandler('fächer', self.faecher))
+		updater.dispatcher.add_handler(CommandHandler('faecher', self.faecher))
 		updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
 
