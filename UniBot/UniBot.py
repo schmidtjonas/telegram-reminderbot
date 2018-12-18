@@ -132,9 +132,14 @@ class UniBot:
 	        'Hello {}'.format(update.message.from_user.first_name))
 
 	def add(self, bot, update, args):
-		print('add')
+		print('add', args)
 
 		fach = " ".join(args)
+		print(fach)
+
+		if args == []:
+			self.errorHandler(update, "Bitte gib ein gültiges Fach ein. Das Fach darf kein Leerzeichen am Anfang oder Ende enthalten")
+			return
 
 		if self.findEntry(fach) != None:
 			self.errorHandler(update, "Fach existiert bereits!")
@@ -295,10 +300,8 @@ class UniBot:
 		return
 
 	def status(self, bot , update):
-		print(1)
-		print(str(update.message.chat_id) , str(update.message.from_user.id), group)
+		print(status)
 		if str(update.message.chat_id) == group:
-			print(1)
 			string = ''
 			for entry in self.entries:
 				string += str(entry) + '\n\n'
