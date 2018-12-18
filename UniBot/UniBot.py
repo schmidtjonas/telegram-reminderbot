@@ -1,6 +1,6 @@
 import pickle
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter
 
 from entry import *
 from task import *
@@ -12,6 +12,13 @@ def sendOperationtoAdmins(message):
 	bot.send_message(chat_id=group, text=message)
 
 
+class FachFilter(BaseFilter):
+	def filter(self, message):
+		print('filter')
+		for i in b.entries:
+			if i.fach == message.text:
+				return True
+		return False
 
 
 class UniBot:
@@ -202,7 +209,16 @@ class UniBot:
 
 
 	def input(self, bot, update):
-		self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self.echo))
+		self.rmCmdHandler() #so einfach gehts leider nicht weil die Handler dann für alle removt sind
+		self.sendMessage(update, "Bitte gib ein Fach an!\n/faecher")
+		fachfilter = FachFilter()
+		self.updater.dispatcher.add_handler(MessageHandler(fachfilter, self.inputTaskTitle))
+
+	def inputTaskTitle(self, bot, update):
+		self.sendMessage(update, "Bitte gib ein Titel an!\n")
+		self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self.inputTaskTitle))
+
+
 
 
 	def echo(self, bot, update):
@@ -216,6 +232,15 @@ class UniBot:
 				return i
 		
 		return None
+
+	def existsEntry(self, bot, update):
+		print('exists')
+		message = update.message.text
+		for i in self.entries:
+			if i.fach == message:
+				return True
+		
+		return False
 
 ###save und load
 
