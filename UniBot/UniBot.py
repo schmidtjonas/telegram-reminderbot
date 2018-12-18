@@ -7,7 +7,7 @@ import time
 
 
 def sendOperationtoAdmins(message):
-	
+	print(message)
 
 	bot.send_message(chat_id=group, text=message)
 
@@ -41,7 +41,7 @@ class Entry:
 		return False
 
 	def __str__(self):
-		return self.fach + "|" + str(self.ersteller) + "|" + str(self.datum) + "|" + str(self.subscribers)
+		return self.fach + " | " + str(self.ersteller) + " | " + str(self.datum) + " | " + str(self.subscribers)[1:-1]
 
 	def __repr__(self):
 		return self.fach
@@ -100,6 +100,9 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('newtask-title', self.taskTitle))
 		updater.dispatcher.add_handler(CallbackQueryHandler(self.button))
 		updater.dispatcher.add_handler(CommandHandler('addtask', self.addtask, pass_args = True, pass_job_queue=True, pass_chat_data=True))
+
+		updater.dispatcher.add_handler(CommandHandler('status', self.status))
+
 
 
 
@@ -282,6 +285,26 @@ class UniBot:
 
 	def taskTitle(self, bot, update):
 		return
+
+	def status(self, bot , update):
+		print(1)
+		print(str(update.message.chat_id) , str(update.message.from_user.id), group)
+		if str(update.message.chat_id) == group:
+			print(1)
+			string = ''
+			for entry in self.entries:
+				string += str(entry) + '\n\n'
+			sendOperationtoAdmins(string)
+			return
+
+		elif str(update.message.from_user.id) in self.admin:
+			string = ''
+			for entry in self.entries:
+				string += str(entry) + '\n\n'
+			self.sendMessage(update, string)
+			return
+		else:
+			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 
 	def spamLukas(self):
 		time.sleep(3)
