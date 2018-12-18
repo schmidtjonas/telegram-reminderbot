@@ -1,5 +1,7 @@
 import pickle
 
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
 from entry import *
 from task import *
 
@@ -25,24 +27,26 @@ class UniBot:
 		else:
 			self.saveEntriesPkl()
 
-		updater = Updater(token)
+		self.updater = Updater(token)
 
 		#self.spamLukas()
 
-		#####Commmands
-		updater.dispatcher.add_handler(CommandHandler('hello', self.hello))
-		updater.dispatcher.add_handler(CommandHandler('start', self.start))
-		updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
-		updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
-		updater.dispatcher.add_handler(CommandHandler('faecher', self.faecher))
-		updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
-		updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
 
-		updater.dispatcher.add_handler(CommandHandler('status', self.status))
+		self.updater.dispatcher.add_handler(CommandHandler('hello', self.hello))
+		self.updater.dispatcher.add_handler(CommandHandler('start', self.start))
+		self.updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
+		self.updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
+		self.updater.dispatcher.add_handler(CommandHandler('faecher', self.faecher))
+		self.updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
+		self.updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
+
+		self.updater.dispatcher.add_handler(CommandHandler('status', self.status))
+
+		self.updater.dispatcher.add_handler(CommandHandler('input', self.input))
 
 
-		updater.start_polling()
-		updater.idle()
+		self.updater.start_polling()
+		self.updater.idle()
 
 		return
 
@@ -190,6 +194,13 @@ class UniBot:
 		sendOperationtoAdmins('addtask: '+args[1] +' in ' +fach+ ', '+ str(update.message.from_user.first_name) + ' in ' + args[0])
 
 
+	def input(self, bot, update):
+		print("1")
+		self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self.echo))
+
+	def echo(self, bot, update):
+		print("2")
+		#update.message.reply_text(update.message.text)
 
 
 	def findEntry(self, fach):  #find Entryobj by fach
