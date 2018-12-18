@@ -1,7 +1,5 @@
 import pickle
 
-
-
 from entry import *
 from task import *
 
@@ -10,6 +8,7 @@ def sendOperationtoAdmins(message):
 	print(message)
 
 	bot.send_message(chat_id=group, text=message)
+
 
 
 
@@ -50,6 +49,14 @@ class UniBot:
 	def sendMessage(self, update, message):
 		update.message.reply_text(message)
 
+
+	def errorHandler(self, update, error):
+		self.sendMessage(update, "Fehler: " + error)
+
+
+
+
+
 	def start(self, bot, update):
 		self.sendMessage(update, """
 	        Willkommen {}
@@ -62,9 +69,15 @@ class UniBot:
 
 	        """.format(update.message.from_user.first_name))
 
+
+
 	def hello(self, bot, update):
 	    self.sendMessage(update,
 	        'Hello {}'.format(update.message.from_user.first_name))
+
+
+#### add und delete Fach
+
 
 	def add(self, bot, update, args):
 		print('add', args)
@@ -90,8 +103,8 @@ class UniBot:
 
 		self.sendMessage(update, str(fach) + ' wurde hinzugefügt. ')
 
-	def errorHandler(self, update, error):
-		self.sendMessage(update, "Fehler: " + error)
+
+
 
 	def deleteFach(self, bot, update, args):
 		print('del')
@@ -113,6 +126,10 @@ class UniBot:
 		self.saveEntriesPkl()
 		self.sendMessage(update, fach + " wurde gelöscht!")
 		sendOperationtoAdmins('del: '+fach+ ', '+ str(update.message.from_user.first_name))
+
+
+
+###subscribe und unsubscribe
 
 
 	def subscribe(self, bot, update, args):
@@ -153,13 +170,9 @@ class UniBot:
 		else:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
 
-	def faecher(self, bot, update):
-		text = "**Übersicht aller verfügbaren Fächer: ** \n ----------------------------------------------------------- \n"
 
-		for entry in self.entries:
-			text += entry.fach + "\n" 
 
-		self.sendMessage(update, text)
+
 
 	def addtask(self, bot, update, args, job_queue, chat_data):
 
@@ -175,13 +188,17 @@ class UniBot:
 		sendOperationtoAdmins('addtask: '+args[1] +' in ' +fach+ ', '+ str(update.message.from_user.first_name) + ' in ' + args[0])
 
 
-	def findEntry(self, fach):
+
+
+	def findEntry(self, fach):  #find Entryobj by fach
 		print('find')
 		for i in self.entries:
 			if i.fach == fach:
 				return i
 		
 		return None
+
+###save und load
 
 	def saveEntriesPkl(self):
 		with open('data.pkl', 'wb') as output:
@@ -199,7 +216,8 @@ class UniBot:
 					break
 
 
-	def status(self, bot, update):
+
+	def status(self, bot, update): #Outputs all Entries to telegram
 		print("status")
 		if str(update.message.chat_id) == group:
 			string = ''
@@ -218,6 +236,20 @@ class UniBot:
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 
 
+
+
+	def faecher(self, bot, update):
+		text = "**Übersicht aller verfügbaren Fächer: ** \n ----------------------------------------------------------- \n"
+
+		for entry in self.entries:
+			text += entry.fach + "\n" 
+
+		self.sendMessage(update, text)
+
+
+
+
+
 	def spamLukas(self):
 		time.sleep(3)
 		while True:
@@ -225,6 +257,8 @@ class UniBot:
 			time.sleep(0.1)
 			#print("Hallo"+ self.lukas)
 			bot.sendMessage(chat_id=self.robert, text="Hier ist CT. Du hast 5,0 in Mathe.")
+
+
 
 ####################
 token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
