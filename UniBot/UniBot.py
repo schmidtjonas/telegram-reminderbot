@@ -65,8 +65,6 @@ class Task:
 		else:
 			self.reminder = reminder
 
-		
-
 
 	def __str__(self):
 		return self.titel + "|" + str(self.ersteller) + "|" + str(self.datum) + "|" + str(self.uhrzeit) +"|" + str(self.reminder)
@@ -98,15 +96,6 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
 
 		updater.dispatcher.add_handler(CommandHandler('status', self.status))
-
-
-		updater.dispatcher.add_handler(CommandHandler('newtask', self.newTask))
-		updater.dispatcher.add_handler(CommandHandler('newtask-title', self.taskTitle))
-		updater.dispatcher.add_handler(CallbackQueryHandler(self.button))
-		updater.dispatcher.add_handler(CommandHandler('addtask', self.addtask, pass_args = True, pass_job_queue=True, pass_chat_data=True))
-
-
-
 
 
 		updater.start_polling()
@@ -283,43 +272,6 @@ class UniBot:
 			return
 		else:
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
-
-
-	def newTask(self, bot, update):
-		print("Hi")
-		keyboard = [
-			[InlineKeyboardButton("Titel", callback_data='1')],
-			[InlineKeyboardButton("Datum", callback_data='2'),InlineKeyboardButton("Uhrzeit", callback_data='3')]]
-
-		reply_markup = InlineKeyboardMarkup(keyboard)
-
-
-		update.message.reply_text('NEUEN TASK ERSTELLEN \n '+
-			'---------------------------------------------------\n' +
-			'1.Gib zuerst den Titel des Tasks an \n' +
-			'2. Gib dann Datum und Uhrzeit des Abgabedatums an \n' +
-			'Anschließend wirst du gefragt werden, ob du noch ein seperates Reminder-Datum angeben möchstest', reply_markup=reply_markup)
-
-	def button(self, bot, update):
-
-		query = update.callback_query
-
-		if int(query.data) == 1:
-			self.taskTitle
-			return
-		elif int(query.data) == 2:
-			self.sendMessage(update, "Datum ändern: ")
-			return
-		elif int(query.data) == 3:
-			self.sendMessage(update, "Uhrzeit ändern: ")
-			return
-		else:
-			self.errorHandler(update, "Ein unerwarteter Fehler ist aufgetreten!")
-
-
-	def taskTitle(self, bot, update):
-		return
-
 
 
 	def spamLukas(self):
