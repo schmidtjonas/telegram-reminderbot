@@ -45,7 +45,6 @@ class UniBot:
 		self.updater.start_polling()
 		#self.updater.idle() #keine Ahnung was das macht aber es geht auch ohne ^^
 
-
 		return
 
 		
@@ -106,14 +105,13 @@ class UniBot:
 			self.errorHandler(update, "Fach existiert bereits!")
 			return
 
-		sendOperationtoAdmins('add: '+fach+ ', ' + str(update.message.from_user.first_name))
 
 		e = Entry(fach, str(update.message.from_user.id))
 		self.entries.append(e)
 		self.saveEntriesPkl()
 
 		#e.save()
-
+		sendOperationtoAdmins('add: '+fach+ ', ' + str(update.message.from_user.first_name))
 		self.sendMessage(update, str(fach) + ' wurde hinzugefügt. ')
 
 
