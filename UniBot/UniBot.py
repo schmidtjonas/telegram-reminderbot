@@ -18,8 +18,7 @@ class UniBot:
 	def __init__(self, createNewFile = False):
 
 		self.lukas = '507305205'
-		self.robert = '672114483'
-		self.admin = ['691400978', '636733660'] #jonas, rohan
+		self.admin = ['691400978', '636733660', '672114483'] #jonas, rohan, robert
 		self.entries = []
 		if not createNewFile:
 			self.loadEntriesPkl()
@@ -31,25 +30,33 @@ class UniBot:
 
 		#self.spamLukas()
 
-		self.updater.dispatcher.add_handler(CommandHandler('hello', self.hello))
-		self.updater.dispatcher.add_handler(CommandHandler('start', self.start))
-		self.updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
-		self.updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
-		self.updater.dispatcher.add_handler(CommandHandler('faecher', self.faecher))
-		self.updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
-		self.updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
+		self.handler = [CommandHandler('hello', self.hello),
+						CommandHandler('start', self.start),
+						CommandHandler('add', self.add, pass_args = True),
+						CommandHandler('delete', self.deleteFach, pass_args = True),
+						CommandHandler('faecher', self.faecher),
+						CommandHandler('subscribe', self.subscribe, pass_args = True),
+						CommandHandler('unsubscribe', self.unsubscribe, pass_args = True),
+						CommandHandler('status', self.status),
+						CommandHandler('input', self.input)]
 
-		self.updater.dispatcher.add_handler(CommandHandler('status', self.status))
 
-		self.updater.dispatcher.add_handler(CommandHandler('input', self.input))
-
+		self.addCmdHandler()
 		self.updater.start_polling()
 		#self.updater.idle() #keine Ahnung was das macht aber es geht auch ohne ^^
-		
+
 
 		return
 
 		
+	def addCmdHandler(self):
+		for h in self.handler:
+			self.updater.dispatcher.add_handler(h)
+
+	def rmCmdHandler(self):
+		for h in self.handler:
+			self.updater.dispatcher.remove_handler(h)
+
 
 	def sendMessage(self, update, message):
 		update.message.reply_text(message)
@@ -58,7 +65,8 @@ class UniBot:
 	def errorHandler(self, update, error):
 		self.sendMessage(update, "Fehler: " + error)
 
-
+	def error(self, bot, update, telegramError):
+		print(update.message.text, telegramError)
 
 
 
@@ -245,6 +253,7 @@ class UniBot:
 				string += str(entry) + '\n\n'
 			self.sendMessage(update, string)
 			return
+
 		else:
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 
@@ -269,7 +278,7 @@ class UniBot:
 			print("spam")
 			time.sleep(0.1)
 			#print("Hallo"+ self.lukas)
-			bot.sendMessage(chat_id=self.robert, text="Hier ist CT. Du hast 5,0 in Mathe.")
+			bot.sendMessage(chat_id=self.lukas, text="Hier ist CT. Du hast 5,0 in Mathe.")
 
 
 
