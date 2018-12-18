@@ -93,7 +93,7 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('start', self.start))
 		updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('delete', self.deleteFach, pass_args = True))
-		updater.dispatcher.add_handler(CommandHandler('faecher', self.faecher))
+		updater.dispatcher.add_handler(CommandHandler('fächer', self.faecher))
 		updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
 
@@ -102,9 +102,7 @@ class UniBot:
 		updater.dispatcher.add_handler(CallbackQueryHandler(self.button))
 		updater.dispatcher.add_handler(CommandHandler('addtask', self.addtask, pass_args = True, pass_job_queue=True, pass_chat_data=True))
 
-
 		updater.dispatcher.add_handler(CommandHandler('status', self.status))
-
 
 
 
@@ -122,6 +120,7 @@ class UniBot:
 	**Befehle:**
 	/add FACH um ein neues Fach erstellen
 	/delete FACH um ein Fach zu löschen
+	/faecher um eine Übersicht der verfügbaren Fächer zu erhalten
 	/subscribe um ein bestehendes Fach zu abbonieren
 	/newtask um einen neuen Task anzulegen
 
@@ -219,13 +218,12 @@ class UniBot:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
 
 	def faecher(self, bot, update):
-		text = "**Übersicht aller verfügbaren Fächer: **\n \n"
+		text = "**Übersicht aller verfügbaren Fächer: ** \n ----------------------------------------------------------- \n"
 
 		for entry in self.entries:
-			text += "\n" + entry.fach
+			text += entry.fach + "\n" 
 
 		self.sendMessage(update, text)
-
 
 	def addtask(self, bot, update, args, job_queue, chat_data):
 
