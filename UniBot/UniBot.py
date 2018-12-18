@@ -97,13 +97,15 @@ class UniBot:
 		updater.dispatcher.add_handler(CommandHandler('subscribe', self.subscribe, pass_args = True))
 		updater.dispatcher.add_handler(CommandHandler('unsubscribe', self.unsubscribe, pass_args = True))
 
+		updater.dispatcher.add_handler(CommandHandler('status', self.status))
+
+
 		updater.dispatcher.add_handler(CommandHandler('newtask', self.newTask))
 		updater.dispatcher.add_handler(CommandHandler('newtask-title', self.taskTitle))
 		updater.dispatcher.add_handler(CallbackQueryHandler(self.button))
 		updater.dispatcher.add_handler(CommandHandler('addtask', self.addtask, pass_args = True, pass_job_queue=True, pass_chat_data=True))
 
 
-		updater.dispatcher.add_handler(CommandHandler('status', self.status))
 
 
 
@@ -264,6 +266,26 @@ class UniBot:
 				except:
 					break
 
+
+	def status(self, bot, update):
+		print("status")
+		if str(update.message.chat_id) == group:
+			string = ''
+			for entry in self.entries:
+				string += str(entry) + '\n\n'
+			sendOperationtoAdmins(string)
+			return
+
+		elif str(update.message.from_user.id) in self.admin:
+			string = ''
+			for entry in self.entries:
+				string += str(entry) + '\n\n'
+			self.sendMessage(update, string)
+			return
+		else:
+			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
+
+
 	def newTask(self, bot, update):
 		print("Hi")
 		keyboard = [
@@ -299,23 +321,7 @@ class UniBot:
 	def taskTitle(self, bot, update):
 		return
 
-	def status(self, bot , update):
-		print(status)
-		if str(update.message.chat_id) == group:
-			string = ''
-			for entry in self.entries:
-				string += str(entry) + '\n\n'
-			sendOperationtoAdmins(string)
-			return
 
-		elif str(update.message.from_user.id) in self.admin:
-			string = ''
-			for entry in self.entries:
-				string += str(entry) + '\n\n'
-			self.sendMessage(update, string)
-			return
-		else:
-			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 
 	def spamLukas(self):
 		time.sleep(3)
