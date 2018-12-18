@@ -29,7 +29,7 @@ class UniBot:
 
 		#self.spamLukas()
 
-
+		#####Commmands
 		updater.dispatcher.add_handler(CommandHandler('hello', self.hello))
 		updater.dispatcher.add_handler(CommandHandler('start', self.start))
 		updater.dispatcher.add_handler(CommandHandler('add', self.add, pass_args = True))
@@ -43,6 +43,8 @@ class UniBot:
 
 		updater.start_polling()
 		updater.idle()
+
+		return
 
 		
 
