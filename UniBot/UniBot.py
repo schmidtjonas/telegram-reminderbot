@@ -236,8 +236,6 @@ class UniBot:
 		sendOperationtoAdmins('addtask: '+args[1] +' in ' +fach+ ', '+ str(update.message.from_user.first_name) + ' in ' + args[0])
 
 
-
-
 	def findEntry(self, fach):
 		print('find')
 		for i in self.entries:
@@ -323,11 +321,6 @@ class UniBot:
 			time.sleep(0.1)
 			#print("Hallo"+ self.lukas)
 			bot.sendMessage(chat_id=self.robert, text="Hier ist CT. Du hast 5,0 in Mathe.")
-
-
-
-
-
 
 ####################
 token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
