@@ -6,19 +6,14 @@ import time
 
 
 class Task:
-	def __init__(self, ersteller, titel, datum , uhrzeit, fach, reminder = None):
+	def __init__(self, ersteller, fach, titel, zeit):
 		self.ersteller = ersteller
 
 		self.titel = titel
-		self.datum = datum
-		self.uhrzeit = uhrzeit
+		self.zeit = zeit
 		self.fach = fach
 
-		if reminder is None:
-			self.reminder = int(datetime.datetime.strptime(self.datum +' ' +self.uhrzeit, '%Y-%m-%d %H:%M'))
-		else:
-			self.reminder = reminder
 
 
 	def __str__(self):
-		return self.fach * " | " + self.titel + " | " + str(self.ersteller) + " | " + str(self.datum) + " | " + str(self.uhrzeit) +" | " + str(self.reminder)
+		return self.fach * " | " + self.titel + " | " + str(self.ersteller) + " | " + str(self.zeit)

@@ -88,7 +88,7 @@ class UniBot:
 						CommandHandler('subscribe', self.subscribe, pass_args = True),
 						CommandHandler('unsubscribe', self.unsubscribe, pass_args = True),
 						CommandHandler('status', self.status),
-						CommandHandler('pick', self.pick)
+						CommandHandler('newtask', self.newtask)
 						]
 
 		fachfilter = FachFilter()
@@ -101,14 +101,13 @@ class UniBot:
 
 				1: [CommandHandler('c', self.cancel),
 				    MessageHandler(fachfilter, self.inputTaskTitle),
-				    CommandHandler('faecher', self.faecher),
 				    CallbackQueryHandler(self.button)],
 
 				2: [CommandHandler('c', self.cancel),
 				    MessageHandler(Filters.text, self.inputTaskTime)],
 
 				3: [CommandHandler('c', self.cancel),
-				    MessageHandler(zeitfilter, self.taskCreated)]
+				    MessageHandler(zeitfilter, self.taskCreated, pass_job_queue=True, pass_chat_data=True)]
 			},
 
 			fallbacks=[CommandHandler('stop', self.stop)])
@@ -148,9 +147,21 @@ class UniBot:
 
 		return 3
 
-	def taskCreated(self, bot, update):
+	def taskCreated(self, bot, update, job_queue, chat_data):
 		print(update.message.text)
 		data = self.newtasks[str(update.message.from_user.id)]
+
+		zeit = datetime.strptime(update.message.text, "%d.%m.%Y %H:%M")
+		t = Task(str(update.message.from_user.id), data[0], data[1], zeit)
+
+		entry = self.findEntry(data[0])
+
+		job = job_queue.run_once(entry.remind, zeit , context=data[1])
+		chat_data['job'] = job
+
+		self.sendMessage(update, "Du hast die Task " + data[1] + " in " + data[0] + " hinzugefügt!")
+		sendOperationtoAdmins('addtask: ' + data[1] + ' in ' + data[0] + ', ' + str(update.message.from_user.first_name) + ' in ' + str(zeit))
+
 
 		return 0
 
@@ -201,12 +212,6 @@ class UniBot:
 
 			""".format(update.message.from_user.first_name))
 		return 0
-
-
-
-
-
-
 
 
 	def hello(self, bot, update):
@@ -286,8 +291,7 @@ class UniBot:
 		chat_data['job'] = job
 
 		self.sendMessage(update, "Du hast die Task " + args[1] + " in " + fach + " hinzugefügt!")
-		sendOperationtoAdmins(
-			'addtask: ' + args[1] + ' in ' + fach + ', ' + str(update.message.from_user.first_name) + ' in ' + args[0])
+		sendOperationtoAdmins('addtask: ' + args[1] + ' in ' + fach + ', ' + str(update.message.from_user.first_name) + ' in ' + args[0])
 
 	def findEntry(self, fach):  # find Entryobj by fach
 		print('find')
