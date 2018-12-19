@@ -1,9 +1,8 @@
 import pickle
 from datetime import datetime
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler, \
-	CallbackQueryHandler
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler, CallbackQueryHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 
 from entry import *
 from task import *
@@ -26,10 +25,18 @@ class FachFilter(BaseFilter):
 class ZeitFilter(BaseFilter):
 	def filter(self, message):
 		try:
-			datetime.strptime(message.text, "%d.%m.%Y %H:%M")
-			return True
+			zeit = datetime.strptime(message.text, "%d.%m.%Y %H:%M")
+			return zeit > datetime.now()
 		except:
 			return False
+
+class NotZeitFilter(BaseFilter):
+	def filter(self, message):
+		try:
+			zeit = datetime.strptime(message.text, "%d.%m.%Y %H:%M")
+			return zeit < datetime.now()
+		except:
+			return True
 
 
 # erlaube operation nur für admins: @restricted vor Function
@@ -89,6 +96,8 @@ class UniBot:
 
 		fachfilter = FachFilter()
 		zeitfilter = ZeitFilter()
+		notzeitfilter = NotZeitFilter()
+
 
 		self.conv_handler = ConversationHandler(
 			entry_points=[CommandHandler('start', self.start)],
@@ -103,7 +112,8 @@ class UniBot:
 				    MessageHandler(Filters.text, self.inputTaskTime)],
 
 				3: [CommandHandler('c', self.cancel),
-				    MessageHandler(zeitfilter, self.taskCreated, pass_job_queue=True, pass_chat_data=True)]
+				    MessageHandler(zeitfilter, self.taskCreated, pass_job_queue=True, pass_chat_data=True),
+				    MessageHandler(notzeitfilter, self.error)]
 			},
 
 			fallbacks=[CommandHandler('stop', self.stop)])
@@ -180,9 +190,10 @@ class UniBot:
 	def button(self, bot, update):
 		query = update.callback_query
 		print(query.data)
-		bot.edit_message_text(text="Du hast das Fach \"{}\" gewählt".format(query.data),
+		bot.edit_message_text(text="Du hast das Fach *{}* gewählt".format(query.data),
 		                      chat_id=query.message.chat_id,
-		                      message_id=query.message.message_id)
+		                      message_id=query.message.message_id,
+		                      parse_mode=ParseMode.MARKDOWN)
 
 		self.newtasks[str(query.message.chat_id)] = [query.data]
 
@@ -194,8 +205,8 @@ class UniBot:
 	def errorHandler(self, update, error):
 		self.sendMessage(update, "Fehler: " + error)
 
-	def error(self, bot, update, telegramError):
-		print(update.message.text, telegramError)
+	def error(self, bot, update):
+		self.sendMessage(update, "Deine Nachricht enspricht nicht dem erwarteten Format!")
 
 	def start(self, bot, update):
 		self.sendMessage(update, """
