@@ -64,7 +64,7 @@ class UniBot:
 		#self.spamLukas()
 
 		self.handler = [CommandHandler('hello', self.hello),
-						
+
 						CommandHandler('add', self.add, pass_args = True),
 						CommandHandler('delete', self.deleteFach, pass_args = True),
 						CommandHandler('faecher', self.faecher),
@@ -77,20 +77,19 @@ class UniBot:
 		fachfilter = FachFilter()
 
 		self.conv_handler = ConversationHandler(
-		entry_points=[CommandHandler('start', self.start)],
+			entry_points=[CommandHandler('start', self.start)],
+			states={
+				0: self.handler,
 
-		states={
-			0: self.handler,
+				1: [CommandHandler('c', self.cancel),
+					MessageHandler(fachfilter, self.inputTaskTitle),
+					CommandHandler('faecher', self.faecher)],
 
-			1: [CommandHandler('c', self.cancel),
-				MessageHandler(fachfilter, self.inputTaskTitle), 
-				CommandHandler('faecher', self.faecher)],
+				2: [CommandHandler('c', self.cancel)
+					]
+			},
 
-			2: [CommandHandler('c', self.cancel)
-				]
-		},
-
-		fallbacks=[CommandHandler('stop', self.stop)])
+			fallbacks=[CommandHandler('stop', self.stop)])
 
 
 		#self.addCmdHandler()
@@ -190,7 +189,7 @@ class UniBot:
 	@lookUpEntry
 	def deleteFach(self, bot, update, entry):
 		print('del')
-		
+
 		if str(update.message.from_user.id) != entry.ersteller and str(update.message.from_user.id) not in admins:
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
@@ -221,8 +220,8 @@ class UniBot:
 
 		if entry.delSubscriber(str(update.message.from_user.id)):
 			self.saveEntriesPkl()
-			self.sendMessage(update, "Du hast "+ fach + " deabonniert!")
-			sendOperationtoAdmins('desub: '+fach+ ', '+ str(update.message.from_user.first_name))
+			self.sendMessage(update, "Du hast " + entry.fach + " deabonniert!")
+			sendOperationtoAdmins('desub: ' + entry.fach + ', ' + str(update.message.from_user.first_name))
 
 		else:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
@@ -253,7 +252,7 @@ class UniBot:
 
 
 	def echo(self, bot, update):
-		update.message.reply_text(update.message.text)
+		self.sendMessage(update, update.message.text)
 
 
 	def findEntry(self, fach):  #find Entryobj by fach
@@ -270,7 +269,7 @@ class UniBot:
 		for i in self.entries:
 			if i.fach == message:
 				return True
-		
+
 		return False
 
 ###save und load
