@@ -21,4 +21,4 @@ class Task:
 
 
 	def __str__(self):
-		return self. fach * "|" + self.titel + "|" + str(self.ersteller) + "|" + str(self.datum) + "|" + str(self.uhrzeit) +"|" + str(self.reminder)
+		return self.fach * " | " + self.titel + " | " + str(self.ersteller) + " | " + str(self.datum) + " | " + str(self.uhrzeit) +" | " + str(self.reminder)

@@ -1,6 +1,6 @@
 import pickle
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler
 
 from entry import *
 from task import *
@@ -64,17 +64,39 @@ class UniBot:
 		#self.spamLukas()
 
 		self.handler = [CommandHandler('hello', self.hello),
-						CommandHandler('start', self.start),
+						
 						CommandHandler('add', self.add, pass_args = True),
 						CommandHandler('delete', self.deleteFach, pass_args = True),
 						CommandHandler('faecher', self.faecher),
 						CommandHandler('subscribe', self.subscribe, pass_args = True),
 						CommandHandler('unsubscribe', self.unsubscribe, pass_args = True),
 						CommandHandler('status', self.status),
-						CommandHandler('input', self.input)]
+						CommandHandler('input', self.input)
+						]
+
+		fachfilter = FachFilter()
+
+		self.conv_handler = ConversationHandler(
+		entry_points=[CommandHandler('start', self.start)],
+
+		states={
+			0: self.handler,
+
+			1: [CommandHandler('c', self.cancel),
+				MessageHandler(fachfilter, self.inputTaskTitle), 
+				CommandHandler('faecher', self.faecher)],
+
+			2: [CommandHandler('c', self.cancel)
+				]
+		},
+
+		fallbacks=[CommandHandler('stop', self.stop)])
 
 
-		self.addCmdHandler()
+		#self.addCmdHandler()
+
+		self.updater.dispatcher.add_handler(self.conv_handler)
+
 		self.updater.start_polling()
 		#self.updater.idle() #keine Ahnung was das macht aber es geht auch (nur) ohne ^^
 
@@ -85,10 +107,24 @@ class UniBot:
 		for h in self.handler:
 			self.updater.dispatcher.add_handler(h)
 
-	def rmCmdHandler(self):
-		for h in self.handler:
-			self.updater.dispatcher.remove_handler(h)
+	def stop(self, bot, update):
+		self.errorHandler(update, 'Abbruch')
+		return 0
 
+	def cancel(self, bot, update):
+		self.sendMessage(update, 'Die Task wurde nicht erstellt.')
+		return 0
+
+	def input(self, bot, update):
+		self.sendMessage(update, "Bitte gib ein Fach an!\n/faecher um alle Fächer zu sehen\n/c zum abbrechen")
+		print(0)
+		return 1
+
+	def inputTaskTitle(self, bot, update):
+		self.sendMessage(update, "Bitte gib ein Titel an!\n/c zum abbrechen")
+		print(update.message.text)
+		print(1)
+		return 2
 
 	def sendMessage(self, update, message):
 		update.message.reply_text(message)
@@ -104,21 +140,23 @@ class UniBot:
 
 	def start(self, bot, update):
 		self.sendMessage(update, """
-	        Willkommen {}
-	**Befehle:**
-	/add FACH um ein neues Fach erstellen
-	/delete FACH um ein Fach zu löschen
-	/faecher um eine Übersicht der verfügbaren Fächer zu erhalten
-	/subscribe um ein bestehendes Fach zu abbonieren
-	/newtask um einen neuen Task anzulegen
+			Willkommen {}
+			**Befehle:**
+			/add FACH um ein neues Fach erstellen
+			/delete FACH um ein Fach zu löschen
+			/faecher um eine Übersicht der verfügbaren Fächer zu erhalten
+			/subscribe um ein bestehendes Fach zu abbonieren
+			/newtask um einen neuen Task anzulegen
 
-	        """.format(update.message.from_user.first_name))
+			""".format(update.message.from_user.first_name))
+		return 0
+
 
 
 
 	def hello(self, bot, update):
-	    self.sendMessage(update,
-	        'Hello {}'.format(update.message.from_user.first_name))
+		self.sendMessage(update,
+			'Hello {}'.format(update.message.from_user.first_name))
 
 
 #### add und delete Fach
@@ -209,16 +247,7 @@ class UniBot:
 
 
 
-	def input(self, bot, update):
-		self.rmCmdHandler() #so einfach gehts leider nicht weil die Handler dann für alle removt sind
-		self.sendMessage(update, "Bitte gib ein Fach an!\n/faecher")
-		fachfilter = FachFilter()
-		self.updater.dispatcher.add_handler(MessageHandler(fachfilter, self.inputTaskTitle))
 
-
-	def inputTaskTitle(self, bot, update):
-		self.sendMessage(update, "Bitte gib ein Titel an!\n")
-		self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self.inputTaskTitle))
 
 
 
@@ -271,8 +300,6 @@ class UniBot:
 		self.sendMessage(update, string)
 
 
-
-
 	def faecher(self, bot, update):
 		text = "**Übersicht aller verfügbaren Fächer: ** \n ----------------------------------------------------------- \n"
 
@@ -280,8 +307,6 @@ class UniBot:
 			text += entry.fach + "\n" 
 
 		self.sendMessage(update, text)
-
-
 
 
 
