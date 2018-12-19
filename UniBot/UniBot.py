@@ -79,15 +79,13 @@ class UniBot:
 		# self.spamLukas()
 
 		self.handler = [CommandHandler('hello', self.hello),
-
-		                CommandHandler('add', self.add, pass_args=True),
-		                CommandHandler('delete', self.deleteFach, pass_args=True),
-		                CommandHandler('faecher', self.faecher),
-		                CommandHandler('subscribe', self.subscribe, pass_args=True),
-		                CommandHandler('unsubscribe', self.unsubscribe, pass_args=True),
-		                CommandHandler('status', self.status),
-		                CommandHandler('newtask', self.newtask)
-		                ]
+						CommandHandler('add', self.add, pass_args=True),
+						CommandHandler('delete', self.deleteFach, pass_args=True),
+						CommandHandler('faecher', self.faecher),
+						CommandHandler('subscribe', self.subscribe, pass_args=True),
+						CommandHandler('unsubscribe', self.unsubscribe, pass_args=True),
+						CommandHandler('status', self.status),
+						CommandHandler('newtask', self.newtask)]
 
 		fachfilter = FachFilter()
 		zeitfilter = ZeitFilter()
@@ -162,6 +160,7 @@ class UniBot:
 
 	def newtask(self, bot, update):
 		keyboard = []
+		# man sieht nur die Entries zu denen man subscribt ist
 		for entry in [i for i in self.entries if str(update.message.from_user.id) in i.subscribers]:
 			keyboard.append([InlineKeyboardButton(entry.fach, callback_data=entry.fach)])
 
