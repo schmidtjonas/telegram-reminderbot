@@ -25,7 +25,8 @@ class FachFilter(BaseFilter):
 def restricted(func):
 	def wrapped(self, bot, update, *args, **kwargs):
 		user_id = str(update.effective_user.id)
-		if user_id not in admins or str(update.message.chat_id) != group:
+		print(user_id, admins)
+		if user_id not in admins and str(update.message.chat_id) != group:
 			print("Unauthorized access denied for {}.".format(user_id))
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
@@ -225,8 +226,6 @@ class UniBot:
 
 		else:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
-
-
 
 
 
