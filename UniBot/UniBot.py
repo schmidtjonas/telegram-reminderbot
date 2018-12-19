@@ -116,11 +116,17 @@ class UniBot:
 				    MessageHandler(notzeitfilter, self.error)]
 			},
 
-			fallbacks=[CommandHandler('stop', self.stop)])
+			fallbacks=[MessageHandler(Filters.command, self.help)])
 
 		# self.addCmdHandler()
 
 		self.updater.dispatcher.add_handler(self.conv_handler)
+		self.updater.dispatcher.add_handler(CommandHandler('report', self.report, pass_args=True))
+		self.updater.dispatcher.add_handler(CommandHandler('vorschlag', self.vorschlag, pass_args=True))
+		self.updater.dispatcher.add_handler(MessageHandler(Filters.command, self.help))
+		self.updater.dispatcher.add_handler(CommandHandler('help', self.help))
+
+
 
 		self.updater.start_polling()
 		# self.updater.idle() #keine Ahnung was das macht aber es geht auch (nur) ohne ^^
@@ -206,17 +212,21 @@ class UniBot:
 		self.sendMessage(update, "Fehler: " + error)
 
 	def error(self, bot, update):
-		self.sendMessage(update, "Deine Nachricht enspricht nicht dem erwarteten Format!")
+		self.errorHandler(update, "Bitte gib eine Nachricht ein, die ich verstehe!")
 
 	def start(self, bot, update):
 		self.sendMessage(update, """
-			Willkommen {}
-			**Befehle:**
+			Willkommen {}, \nich soll in Zukunft an Übungsabgaben und Veranstaltungen erinnern. 
+Bitte teste ob ich auf deinem Gerät soweit gut funktioniere. Bei Fehlern oder Verbesserungsvorschlägen nutze gerne die entsprechenden Befehle!
+			\n---- Befehle: ----
 			/add FACH um ein neues Fach erstellen
 			/delete FACH um ein Fach zu löschen
-			/faecher um eine Übersicht der verfügbaren Fächer zu erhalten
-			/subscribe um ein bestehendes Fach zu abbonieren
+			/faecher um eine Übersicht der Fächer zu erhalten
+			/subscribe FACH um ein Fach zu abonnieren
+			/unsubscribe FACH um ein Fach zu deabonnieren
 			/newtask um einen neuen Task anzulegen
+			/report BUG um einen Fehler zu melden
+			/vorschlag TEXT für einen Verbesserungsvorschlag
 
 			""".format(update.message.from_user.first_name))
 		return 0
@@ -234,8 +244,7 @@ class UniBot:
 		print(fach)
 
 		if args == []:
-			self.errorHandler(update,
-			                  "Bitte gib ein gültiges Fach ein. Das Fach darf kein Leerzeichen am Anfang oder Ende enthalten")
+			self.errorHandler(update, "Bitte gib ein gültiges Fach ein. Das Fach darf kein Leerzeichen am Anfang oder Ende enthalten")
 			return
 
 		if self.findEntry(fach) != None:
@@ -344,6 +353,40 @@ class UniBot:
 			time.sleep(0.1)
 			bot.sendMessage(chat_id=self.lukas, text="Hier ist CT. Du hast 5,0 in Mathe.")
 
+	def report(self, bot, update, args):
+		if not args:
+			self.errorHandler(update, "Bitte schreib eine kurze Nachricht!")
+			return
+		with open(reportfile, "a") as file:
+			file.write(" ".join(args) + "\n")
+			self.sendMessage(update, "Vielen Danke für deine Hilfe!")
+			print("report")
+
+	def vorschlag(self, bot, update, args):
+		if not args:
+			self.errorHandler(update, "Bitte schreib eine kurze Nachricht!")
+			return
+		with open(vorschlagfile, "a") as file:
+			file.write(" ".join(args) + "\n")
+			self.sendMessage(update, "Vielen Danke für deine Hilfe!")
+			print("vorschlag")
+
+	def help(self, bot, update):
+		self.sendMessage(update, """---- Befehle: ----
+			/add FACH um ein neues Fach erstellen
+			/delete FACH um ein Fach zu löschen
+			/faecher um eine Übersicht der Fächer zu erhalten
+			/subscribe FACH um ein Fach zu abonnieren
+			/unsubscribe FACH um ein Fach zu deabonnieren
+			/newtask um einen neuen Task anzulegen
+			/report BUG um einen Fehler zu melden
+			/vorschlag TEXT für einen Verbesserungsvorschlag
+			/c bricht /newtask ab
+			/help für Befehlsliste
+			/start falls gar nichts funktioniert""")
+		return 0
+
+
 
 ###########################################################################
 
@@ -351,6 +394,9 @@ token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
 token2 = '773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k'
 group = '-385326743'
 admins = ['691400978', '636733660', '672114483']  # jonas, rohan, robert
+
+reportfile = "report.txt"
+vorschlagfile = "vorschlag.txt"
 
 ###########################################################################
 
