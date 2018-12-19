@@ -14,7 +14,7 @@ class Task:
 		self.uhrzeit = uhrzeit
 		self.fach = fach
 
-		if reminder == none:
+		if reminder is None:
 			self.reminder = int(datetime.datetime.strptime(self.datum +' ' +self.uhrzeit, '%Y-%m-%d %H:%M'))
 		else:
 			self.reminder = reminder

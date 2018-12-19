@@ -25,7 +25,7 @@ class FachFilter(BaseFilter):
 def restricted(func):
 	def wrapped(self, bot, update, *args, **kwargs):
 		user_id = str(update.effective_user.id)
-		if user_id not in admins or str(update.message.chat_id) != group:
+		if user_id not in admins and str(update.message.chat_id) != group:
 			print("Unauthorized access denied for {}.".format(user_id))
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
@@ -180,7 +180,6 @@ class UniBot:
 		self.entries.append(e)
 		self.saveEntriesPkl()
 
-		#e.save()
 		sendOperationtoAdmins('add: '+fach+ ', ' + str(update.message.from_user.first_name))
 		self.sendMessage(update, str(fach) + ' wurde hinzugefügt. ')
 
@@ -305,7 +304,6 @@ class UniBot:
 		while True:
 			print("spam")
 			time.sleep(0.1)
-			#print("Hallo"+ self.lukas)
 			bot.sendMessage(chat_id=self.lukas, text="Hier ist CT. Du hast 5,0 in Mathe.")
 
 
