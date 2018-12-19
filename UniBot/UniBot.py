@@ -38,7 +38,7 @@ def lookUpEntry(func):
 	def wrapped(self, bot, update, args, *moreargs, **kwargs):
 		fach = " ".join(args)
 		entry = self.findEntry(fach)
-		if entry == None:
+		if entry is None:
 			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 			return
 		return func(self, bot, update, entry)
