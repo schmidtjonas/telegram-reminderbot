@@ -32,6 +32,7 @@ def restricted(func):
 		return func(self, bot, update, *args, **kwargs)
 	return wrapped
 
+#suche den passenden Entry oder liefere einen Error
 
 def lookUpEntry(func):
 	def wrapped(self, bot, update, args, *moreargs, **kwargs):
@@ -42,6 +43,9 @@ def lookUpEntry(func):
 			return
 		return func(self, bot, update, entry)
 	return wrapped
+
+
+#############
 
 
 class UniBot:
@@ -72,7 +76,7 @@ class UniBot:
 
 		self.addCmdHandler()
 		self.updater.start_polling()
-		#self.updater.idle() #keine Ahnung was das macht aber es geht auch ohne ^^
+		#self.updater.idle() #keine Ahnung was das macht aber es geht auch (nur) ohne ^^
 
 		return
 
@@ -210,7 +214,7 @@ class UniBot:
 		self.sendMessage(update, "Bitte gib ein Fach an!\n/faecher")
 		fachfilter = FachFilter()
 		self.updater.dispatcher.add_handler(MessageHandler(fachfilter, self.inputTaskTitle))
-		
+
 
 	def inputTaskTitle(self, bot, update):
 		self.sendMessage(update, "Bitte gib ein Titel an!\n")
@@ -293,20 +297,20 @@ class UniBot:
 
 
 
+###########################################################################
 
-####################
 token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
-
 token2 = '773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k'
+group = '-385326743'
+admins = ['691400978', '636733660', '672114483'] #jonas, rohan, robert
+
+###########################################################################
 
 bot = Bot(token)
 
-
 testbot = Bot(token2)
 
-group = '-385326743'
 chat = Chat(group, 'group')
-admins = ['691400978', '636733660', '672114483'] #jonas, rohan, robert
 
 
 
