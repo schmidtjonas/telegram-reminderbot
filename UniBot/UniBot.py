@@ -17,7 +17,6 @@ def sendOperationtoAdmins(message):
 
 class FachFilter(BaseFilter):
 	def filter(self, message):
-		print('filter')
 		for i in b.entries:
 			if i.fach == message.text:
 				return True
@@ -26,7 +25,6 @@ class FachFilter(BaseFilter):
 
 class ZeitFilter(BaseFilter):
 	def filter(self, message):
-		print("zeitfilter")
 		try:
 			datetime.strptime(message.text, "%d.%m.%Y %H:%M")
 			return True
@@ -135,12 +133,9 @@ class UniBot:
 
 	def inputTaskTitle(self, bot, update):
 		self.sendMessage(update.callback_query, "Bitte gib ein Titel an!\n/c zum abbrechen")
-		print(self.newtasks)
-		print(2)
 		return 2
 
 	def inputTaskTime(self, bot, update):
-		print(update.message.text)
 		self.newtasks[str(update.message.from_user.id)].append(update.message.text)
 
 		self.sendMessage(update, "Bitte gib eine Zeit an!\nFormat: dd.mm.yyyy HH:MM\n/c zum abbrechen")
@@ -148,7 +143,6 @@ class UniBot:
 		return 3
 
 	def taskCreated(self, bot, update, job_queue, chat_data):
-		print(update.message.text)
 		data = self.newtasks[str(update.message.from_user.id)]
 
 		zeit = datetime.strptime(update.message.text, "%d.%m.%Y %H:%M")
@@ -166,15 +160,14 @@ class UniBot:
 
 		return 0
 
-	def pick(self, bot, update):
+	def newtask(self, bot, update):
 		keyboard = []
-		for entry in self.entries:
-			print(entry.fach)
+		for entry in [i for i in self.entries if str(update.message.from_user.id) in i.subscribers]:
 			keyboard.append([InlineKeyboardButton(entry.fach, callback_data=entry.fach)])
 
 		reply_markup = InlineKeyboardMarkup(keyboard)
 
-		update.message.reply_text('Please choose:', reply_markup=reply_markup)
+		update.message.reply_text('Bitte wähle ein Fach:', reply_markup=reply_markup)
 
 		return 1
 
@@ -276,20 +269,6 @@ class UniBot:
 
 		else:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
-
-	def addtask(self, bot, update, args, job_queue, chat_data):
-
-		fach = " ".join(args[2:])
-		print("addtask", args[0], args[1], fach)
-
-		entry = self.findEntry(fach)
-
-		job = job_queue.run_once(entry.remind, int(args[0]), context=args[1])
-		chat_data['job'] = job
-
-		self.sendMessage(update, "Du hast die Task " + args[1] + " in " + fach + " hinzugefügt!")
-		sendOperationtoAdmins(
-			'addtask: ' + args[1] + ' in ' + fach + ', ' + str(update.message.from_user.first_name) + ' in ' + args[0])
 
 	def findEntry(self, fach):  # find Entryobj by fach
 		print('find')

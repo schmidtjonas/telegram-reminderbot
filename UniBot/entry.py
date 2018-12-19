@@ -1,6 +1,5 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram import Bot, Chat
 from datetime import datetime
 import time
 
