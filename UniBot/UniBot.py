@@ -20,12 +20,34 @@ class FachFilter(BaseFilter):
 				return True
 		return False
 
+#erlaube operation nur für admins: @restricted vor Function
+
+def restricted(func):
+	def wrapped(self, bot, update, *args, **kwargs):
+		user_id = str(update.effective_user.id)
+		if user_id not in admins or str(update.message.chat_id) != group:
+			print("Unauthorized access denied for {}.".format(user_id))
+			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
+			return
+		return func(self, bot, update, *args, **kwargs)
+	return wrapped
+
+
+def lookUpEntry(func):
+	def wrapped(self, bot, update, args, *moreargs, **kwargs):
+		fach = " ".join(args)
+		entry = self.findEntry(fach)
+		if entry == None:
+			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
+			return
+		return func(self, bot, update, entry)
+	return wrapped
+
 
 class UniBot:
 	def __init__(self, createNewFile = False):
 
 		self.lukas = '507305205'
-		self.admin = ['691400978', '636733660', '672114483'] #jonas, rohan, robert
 		self.entries = []
 		if not createNewFile:
 			self.loadEntriesPkl()
@@ -123,63 +145,38 @@ class UniBot:
 
 
 
-
-	def deleteFach(self, bot, update, args):
+	@lookUpEntry
+	def deleteFach(self, bot, update, entry):
 		print('del')
-		fach = " ".join(args)
-		entry = self.findEntry(fach)
-
-
-		if entry == None:
-			print('error')
-			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
-			return
-
-		if str(update.message.from_user.id) != entry.ersteller and str(update.message.from_user.id) not in self.admin:
+		
+		if str(update.message.from_user.id) != entry.ersteller and str(update.message.from_user.id) not in admins:
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
 
-
 		self.entries.remove(entry)
 		self.saveEntriesPkl()
-		self.sendMessage(update, fach + " wurde gelöscht!")
-		sendOperationtoAdmins('del: '+fach+ ', '+ str(update.message.from_user.first_name))
+		self.sendMessage(update, entry.fach + " wurde gelöscht!")
+		sendOperationtoAdmins('del: '+entry.fach+ ', '+ str(update.message.from_user.first_name))
 
 
 
 ###subscribe und unsubscribe
 
-
-	def subscribe(self, bot, update, args):
+	@lookUpEntry
+	def subscribe(self, bot, update, entry):
 		print("sub")
-		fach = " ".join(args)
-
-		print(fach)
-		entry = self.findEntry(fach)
-
-		if entry == None:
-			print('error')
-			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
-			return
 
 		if entry.addSubcriber(str(update.message.from_user.id)):
 			self.saveEntriesPkl()
-			self.sendMessage(update, "Du hast "+ fach + " abonniert!")
-			sendOperationtoAdmins('sub: '+fach+ ', '+ str(update.message.from_user.first_name))
+			self.sendMessage(update, "Du hast "+ entry.fach + " abonniert!")
+			sendOperationtoAdmins('sub: '+entry.fach+ ', '+ str(update.message.from_user.first_name))
 		else:
 			self.errorHandler(update, "Du hast dieses Fach bereits abonniert!")
 
-	def unsubscribe(self, bot, update, args):
+	@lookUpEntry
+	def unsubscribe(self, bot, update, entry):
 		print("unsub")
-		fach = " ".join(args)
 
-		print(fach)
-		entry = self.findEntry(fach)
-
-		if entry == None:
-			print('error')
-			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
-			return
 		if entry.delSubscriber(str(update.message.from_user.id)):
 			self.saveEntriesPkl()
 			self.sendMessage(update, "Du hast "+ fach + " deabonniert!")
@@ -213,6 +210,7 @@ class UniBot:
 		self.sendMessage(update, "Bitte gib ein Fach an!\n/faecher")
 		fachfilter = FachFilter()
 		self.updater.dispatcher.add_handler(MessageHandler(fachfilter, self.inputTaskTitle))
+		
 
 	def inputTaskTitle(self, bot, update):
 		self.sendMessage(update, "Bitte gib ein Titel an!\n")
@@ -260,25 +258,13 @@ class UniBot:
 					break
 
 
-
+	@restricted
 	def status(self, bot, update): #Outputs all Entries to telegram
 		print("status")
-		if str(update.message.chat_id) == group:
-			string = ''
-			for entry in self.entries:
-				string += str(entry) + '\n\n'
-			sendOperationtoAdmins(string)
-			return
-
-		elif str(update.message.from_user.id) in self.admin:
-			string = ''
-			for entry in self.entries:
-				string += str(entry) + '\n\n'
-			self.sendMessage(update, string)
-			return
-
-		else:
-			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
+		string = ''
+		for entry in self.entries:
+			string += str(entry) + '\n\n'
+		self.sendMessage(update, string)
 
 
 
@@ -305,6 +291,9 @@ class UniBot:
 
 
 
+
+
+
 ####################
 token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
 
@@ -317,6 +306,8 @@ testbot = Bot(token2)
 
 group = '-385326743'
 chat = Chat(group, 'group')
+admins = ['691400978', '636733660', '672114483'] #jonas, rohan, robert
+
 
 
 b = UniBot() # True als Parameter erstellt ein komplett neues File
