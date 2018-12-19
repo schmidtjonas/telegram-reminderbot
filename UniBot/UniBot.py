@@ -161,7 +161,14 @@ class UniBot:
 	def newtask(self, bot, update):
 		keyboard = []
 		# man sieht nur die Entries zu denen man subscribt ist
-		for entry in [i for i in self.entries if str(update.message.from_user.id) in i.subscribers]:
+		subed = [i for i in self.entries if str(update.message.from_user.id) in i.subscribers]
+
+		if not subed: # subed == []
+			self.errorHandler(update, "Du hast kein Fach abonniert! Nutze /subscribe FACH zum abonnieren")
+			return 0
+
+
+		for entry in subed:
 			keyboard.append([InlineKeyboardButton(entry.fach, callback_data=entry.fach)])
 
 		reply_markup = InlineKeyboardMarkup(keyboard)
