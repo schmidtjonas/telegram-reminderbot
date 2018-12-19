@@ -246,16 +246,6 @@ class UniBot:
 
 
 
-
-
-
-
-
-
-	def echo(self, bot, update):
-		update.message.reply_text(update.message.text)
-
-
 	def findEntry(self, fach):  #find Entryobj by fach
 		print('find')
 		for i in self.entries:
