@@ -28,13 +28,13 @@ class ZeitFilter(BaseFilter):
 	def filter(self, message):
 		print("zeitfilter")
 		try:
-			datetime.strptime(message, "%d.%m.%Y %H:%M")
+			datetime.strptime(message.text, "%d.%m.%Y %H:%M")
 			return True
 		except:
 			return False
 
 
-#erlaube operation nur für admins: @restricted vor Function
+# erlaube operation nur für admins: @restricted vor Function
 
 def restricted(func):
 	def wrapped(self, bot, update, *args, **kwargs):
@@ -44,9 +44,11 @@ def restricted(func):
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
 		return func(self, bot, update, *args, **kwargs)
+
 	return wrapped
 
-#suche den passenden Entry oder liefere einen Error
+
+# suche den passenden Entry oder liefere einen Error
 
 def lookUpEntry(func):
 	def wrapped(self, bot, update, args, *moreargs, **kwargs):
@@ -56,6 +58,7 @@ def lookUpEntry(func):
 			self.errorHandler(update, "Verschrieben? Dieses Fach existiert nicht!")
 			return
 		return func(self, bot, update, entry)
+
 	return wrapped
 
 
@@ -63,7 +66,7 @@ def lookUpEntry(func):
 
 
 class UniBot:
-	def __init__(self, createNewFile = False):
+	def __init__(self, createNewFile=False):
 		self.lukas = '507305205'
 		self.entries = []
 		self.newtasks = {}
@@ -75,7 +78,7 @@ class UniBot:
 
 		self.updater = Updater(token)
 
-		#self.spamLukas()
+		# self.spamLukas()
 
 		self.handler = [CommandHandler('hello', self.hello),
 
@@ -97,30 +100,28 @@ class UniBot:
 				0: self.handler,
 
 				1: [CommandHandler('c', self.cancel),
-					MessageHandler(fachfilter, self.inputTaskTitle),
-					CommandHandler('faecher', self.faecher),
-					CallbackQueryHandler(self.button)],
+				    MessageHandler(fachfilter, self.inputTaskTitle),
+				    CommandHandler('faecher', self.faecher),
+				    CallbackQueryHandler(self.button)],
 
 				2: [CommandHandler('c', self.cancel),
-					MessageHandler(Filters.text, self.inputTaskTime)],
+				    MessageHandler(Filters.text, self.inputTaskTime)],
 
 				3: [CommandHandler('c', self.cancel),
-					MessageHandler(zeitfilter, self.success)]
+				    MessageHandler(zeitfilter, self.taskCreated)]
 			},
 
 			fallbacks=[CommandHandler('stop', self.stop)])
 
-
-		#self.addCmdHandler()
+		# self.addCmdHandler()
 
 		self.updater.dispatcher.add_handler(self.conv_handler)
 
 		self.updater.start_polling()
-		#self.updater.idle() #keine Ahnung was das macht aber es geht auch (nur) ohne ^^
+		# self.updater.idle() #keine Ahnung was das macht aber es geht auch (nur) ohne ^^
 
 		return
 
-		
 	def addCmdHandler(self):
 		for h in self.handler:
 			self.updater.dispatcher.add_handler(h)
@@ -132,7 +133,6 @@ class UniBot:
 	def cancel(self, bot, update):
 		self.sendMessage(update, 'Die Task wurde nicht erstellt.')
 		return 0
-
 
 	def inputTaskTitle(self, bot, update):
 		self.sendMessage(update.callback_query, "Bitte gib ein Titel an!\n/c zum abbrechen")
@@ -148,8 +148,10 @@ class UniBot:
 
 		return 3
 
-	def success(self, bot, update):
+	def taskCreated(self, bot, update):
 		print(update.message.text)
+		data = self.newtasks[str(update.message.from_user.id)]
+
 		return 0
 
 	def pick(self, bot, update):
@@ -172,7 +174,7 @@ class UniBot:
 							  chat_id=query.message.chat_id,
 							  message_id=query.message.message_id)
 
-		self.newtasks[str(query.message.from_user.id)] = [query.data]
+		self.newtasks[str(query.message.chat_id)] = [query.data]
 
 
 		return self.inputTaskTitle(bot, update)
@@ -181,14 +183,11 @@ class UniBot:
 	def sendMessage(self, update, message):
 		update.message.reply_text(message)
 
-
 	def errorHandler(self, update, error):
 		self.sendMessage(update, "Fehler: " + error)
 
 	def error(self, bot, update, telegramError):
 		print(update.message.text, telegramError)
-
-
 
 	def start(self, bot, update):
 		self.sendMessage(update, """
@@ -204,7 +203,7 @@ class UniBot:
 		return 0
 
 
-	
+
 
 
 
@@ -212,11 +211,9 @@ class UniBot:
 
 	def hello(self, bot, update):
 		self.sendMessage(update,
-			'Hello {}'.format(update.message.from_user.first_name))
+		                 'Hello {}'.format(update.message.from_user.first_name))
 
-
-#### add und delete Fach
-
+	#### add und delete Fach
 
 	def add(self, bot, update, args):
 		print('add', args)
@@ -225,22 +222,20 @@ class UniBot:
 		print(fach)
 
 		if args == []:
-			self.errorHandler(update, "Bitte gib ein gültiges Fach ein. Das Fach darf kein Leerzeichen am Anfang oder Ende enthalten")
+			self.errorHandler(update,
+			                  "Bitte gib ein gültiges Fach ein. Das Fach darf kein Leerzeichen am Anfang oder Ende enthalten")
 			return
 
 		if self.findEntry(fach) != None:
 			self.errorHandler(update, "Fach existiert bereits!")
 			return
 
-
 		e = Entry(fach, str(update.message.from_user.id))
 		self.entries.append(e)
 		self.saveEntriesPkl()
 
-		sendOperationtoAdmins('add: '+fach+ ', ' + str(update.message.from_user.first_name))
+		sendOperationtoAdmins('add: ' + fach + ', ' + str(update.message.from_user.first_name))
 		self.sendMessage(update, str(fach) + ' wurde hinzugefügt. ')
-
-
 
 	@lookUpEntry
 	def deleteFach(self, bot, update, entry):
@@ -253,11 +248,9 @@ class UniBot:
 		self.entries.remove(entry)
 		self.saveEntriesPkl()
 		self.sendMessage(update, entry.fach + " wurde gelöscht!")
-		sendOperationtoAdmins('del: '+entry.fach+ ', '+ str(update.message.from_user.first_name))
+		sendOperationtoAdmins('del: ' + entry.fach + ', ' + str(update.message.from_user.first_name))
 
-
-
-###subscribe und unsubscribe
+	###subscribe und unsubscribe
 
 	@lookUpEntry
 	def subscribe(self, bot, update, entry):
@@ -265,8 +258,8 @@ class UniBot:
 
 		if entry.addSubcriber(str(update.message.from_user.id)):
 			self.saveEntriesPkl()
-			self.sendMessage(update, "Du hast "+ entry.fach + " abonniert!")
-			sendOperationtoAdmins('sub: '+entry.fach+ ', '+ str(update.message.from_user.first_name))
+			self.sendMessage(update, "Du hast " + entry.fach + " abonniert!")
+			sendOperationtoAdmins('sub: ' + entry.fach + ', ' + str(update.message.from_user.first_name))
 		else:
 			self.errorHandler(update, "Du hast dieses Fach bereits abonniert!")
 
@@ -282,8 +275,6 @@ class UniBot:
 		else:
 			self.errorHandler(update, "Du hast dieses Fach nicht abonniert!")
 
-
-
 	def addtask(self, bot, update, args, job_queue, chat_data):
 
 		fach = " ".join(args[2:])
@@ -294,18 +285,16 @@ class UniBot:
 		job = job_queue.run_once(entry.remind, int(args[0]), context=args[1])
 		chat_data['job'] = job
 
-		self.sendMessage(update, "Du hast die Task "+ args[1] + " in " + fach + " hinzugefügt!")
-		sendOperationtoAdmins('addtask: '+args[1] +' in ' +fach+ ', '+ str(update.message.from_user.first_name) + ' in ' + args[0])
+		self.sendMessage(update, "Du hast die Task " + args[1] + " in " + fach + " hinzugefügt!")
+		sendOperationtoAdmins(
+			'addtask: ' + args[1] + ' in ' + fach + ', ' + str(update.message.from_user.first_name) + ' in ' + args[0])
 
-
-
-
-	def findEntry(self, fach):  #find Entryobj by fach
+	def findEntry(self, fach):  # find Entryobj by fach
 		print('find')
 		for i in self.entries:
 			if i.fach == fach:
 				return i
-		
+
 		return None
 
 	def existsEntry(self, bot, update):
@@ -317,7 +306,7 @@ class UniBot:
 
 		return False
 
-###save und load
+	###save und load
 
 	def saveEntriesPkl(self):
 		with open('data.pkl', 'wb') as output:
@@ -334,25 +323,21 @@ class UniBot:
 				except:
 					break
 
-
 	@restricted
-	def status(self, bot, update): #Outputs all Entries to telegram
+	def status(self, bot, update):  # Outputs all Entries to telegram
 		print("status")
 		string = ''
 		for entry in self.entries:
 			string += str(entry) + '\n\n'
 		self.sendMessage(update, string)
 
-
 	def faecher(self, bot, update):
 		text = "**Übersicht aller verfügbaren Fächer: ** \n ----------------------------------------------------------- \n"
 
 		for entry in self.entries:
-			text += entry.fach + "\n" 
+			text += entry.fach + "\n"
 
 		self.sendMessage(update, text)
-
-
 
 	def spamLukas(self):
 		time.sleep(3)
@@ -362,15 +347,12 @@ class UniBot:
 			bot.sendMessage(chat_id=self.lukas, text="Hier ist CT. Du hast 5,0 in Mathe.")
 
 
-
-
-
 ###########################################################################
 
 token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
 token2 = '773918644:AAHnwfrZFkwXJIW0QuU6ibAOyOZ3NyGcL0k'
 group = '-385326743'
-admins = ['691400978', '636733660', '672114483'] #jonas, rohan, robert
+admins = ['691400978', '636733660', '672114483']  # jonas, rohan, robert
 
 ###########################################################################
 
@@ -380,10 +362,4 @@ testbot = Bot(token2)
 
 chat = Chat(group, 'group')
 
-
-
-b = UniBot() # True als Parameter erstellt ein komplett neues File
-
-
-
-
+b = UniBot()  # True als Parameter erstellt ein komplett neues File
