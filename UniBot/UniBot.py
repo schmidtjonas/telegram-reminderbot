@@ -85,7 +85,6 @@ class UniBot:
 						CommandHandler('subscribe', self.subscribe, pass_args = True),
 						CommandHandler('unsubscribe', self.unsubscribe, pass_args = True),
 						CommandHandler('status', self.status),
-						CommandHandler('input', self.input),
 						CommandHandler('pick', self.pick)
 						]
 
@@ -147,11 +146,36 @@ class UniBot:
 
 		self.sendMessage(update, "Bitte gib eine Zeit an!\nFormat: dd.mm.yyyy HH:MM\n/c zum abbrechen")
 
+		return 3
+
 	def success(self, bot, update):
 		print(update.message.text)
 		return 0
 
+	def pick(self, bot, update):
+		keyboard = []
+		for entry in self.entries:
+			print(entry.fach)
+			keyboard.append([InlineKeyboardButton(entry.fach, callback_data=entry.fach)])
 
+		reply_markup = InlineKeyboardMarkup(keyboard)
+
+		update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
+		return 1
+
+
+	def button(self, bot, update):
+		query = update.callback_query
+		print(query.data)
+		bot.edit_message_text(text="Selected option: {}".format(query.data),
+							  chat_id=query.message.chat_id,
+							  message_id=query.message.message_id)
+
+		self.newtasks[str(query.message.from_user.id)] = [query.data]
+
+
+		return self.inputTaskTitle(bot, update)
 
 
 	def sendMessage(self, update, message):
@@ -180,30 +204,7 @@ class UniBot:
 		return 0
 
 
-	def pick(self, bot, update):
-		keyboard = []
-		for entry in self.entries:
-			print(entry.fach)
-			keyboard.append([InlineKeyboardButton(entry.fach, callback_data=entry.fach)])
-
-		reply_markup = InlineKeyboardMarkup(keyboard)
-
-		update.message.reply_text('Please choose:', reply_markup=reply_markup)
-
-		return 1
-
-
-	def button(self, bot, update):
-	    query = update.callback_query
-	    print(query.data)
-	    bot.edit_message_text(text="Selected option: {}".format(query.data),
-	                          chat_id=query.message.chat_id,
-	                          message_id=query.message.message_id)
-
-	    self.newtasks[str(query.message.from_user.id)] = [query.data]
-
-
-	    self.inputTaskTitle(bot, update)
+	
 
 
 
