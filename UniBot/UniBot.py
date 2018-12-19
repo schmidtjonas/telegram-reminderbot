@@ -153,7 +153,7 @@ class UniBot:
 		job = job_queue.run_once(entry.remind, zeit, context=data[1])
 		chat_data['job'] = job
 
-		self.sendMessage(update, "Du hast die Task " + data[1] + " in " + data[0] + " hinzugefügt!")
+		self.sendMessage(update, 'Du hast die Task "' + data[1] + '" in "' + data[0] + '" hinzugefügt!')
 		sendOperationtoAdmins(
 			'addtask: ' + data[1] + ' in ' + data[0] + ', ' + str(update.message.from_user.first_name) + ' in ' + str(
 				zeit))
@@ -174,7 +174,7 @@ class UniBot:
 	def button(self, bot, update):
 		query = update.callback_query
 		print(query.data)
-		bot.edit_message_text(text="Selected option: {}".format(query.data),
+		bot.edit_message_text(text="Du hast das Fach \"{}\" gewählt".format(query.data),
 		                      chat_id=query.message.chat_id,
 		                      message_id=query.message.message_id)
 
