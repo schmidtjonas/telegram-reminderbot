@@ -1,6 +1,9 @@
 import pickle
+from datetime import datetime
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler, CallbackQueryHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 
 from entry import *
 from task import *
@@ -19,6 +22,17 @@ class FachFilter(BaseFilter):
 			if i.fach == message.text:
 				return True
 		return False
+
+
+class ZeitFilter(BaseFilter):
+	def filter(self, message):
+		print("zeitfilter")
+		try:
+			datetime.strptime(message, "%d.%m.%Y %H:%M")
+			return True
+		except:
+			return False
+
 
 #erlaube operation nur für admins: @restricted vor Function
 
@@ -50,9 +64,9 @@ def lookUpEntry(func):
 
 class UniBot:
 	def __init__(self, createNewFile = False):
-
 		self.lukas = '507305205'
 		self.entries = []
+		self.newtasks = {}
 		if not createNewFile:
 			self.loadEntriesPkl()
 			print(self.entries)
@@ -71,10 +85,12 @@ class UniBot:
 						CommandHandler('subscribe', self.subscribe, pass_args = True),
 						CommandHandler('unsubscribe', self.unsubscribe, pass_args = True),
 						CommandHandler('status', self.status),
-						CommandHandler('input', self.input)
+						CommandHandler('input', self.input),
+						CommandHandler('pick', self.pick)
 						]
 
 		fachfilter = FachFilter()
+		zeitfilter = ZeitFilter()
 
 		self.conv_handler = ConversationHandler(
 			entry_points=[CommandHandler('start', self.start)],
@@ -83,10 +99,14 @@ class UniBot:
 
 				1: [CommandHandler('c', self.cancel),
 					MessageHandler(fachfilter, self.inputTaskTitle),
-					CommandHandler('faecher', self.faecher)],
+					CommandHandler('faecher', self.faecher),
+					CallbackQueryHandler(self.button)],
 
-				2: [CommandHandler('c', self.cancel)
-					]
+				2: [CommandHandler('c', self.cancel),
+					MessageHandler(Filters.text, self.inputTaskTime)],
+
+				3: [CommandHandler('c', self.cancel),
+					MessageHandler(zeitfilter, self.success)]
 			},
 
 			fallbacks=[CommandHandler('stop', self.stop)])
@@ -114,16 +134,25 @@ class UniBot:
 		self.sendMessage(update, 'Die Task wurde nicht erstellt.')
 		return 0
 
-	def input(self, bot, update):
-		self.sendMessage(update, "Bitte gib ein Fach an!\n/faecher um alle Fächer zu sehen\n/c zum abbrechen")
-		print(0)
-		return 1
 
 	def inputTaskTitle(self, bot, update):
-		self.sendMessage(update, "Bitte gib ein Titel an!\n/c zum abbrechen")
-		print(update.message.text)
-		print(1)
+		self.sendMessage(update.callback_query, "Bitte gib ein Titel an!\n/c zum abbrechen")
+		print(self.newtasks)
+		print(2)
 		return 2
+
+	def inputTaskTime(self, bot, update):
+		print(update.message.text)
+		self.newtasks[str(update.message.from_user.id)].append(update.message.text)
+
+		self.sendMessage(update, "Bitte gib eine Zeit an!\nFormat: dd.mm.yyyy HH:MM\n/c zum abbrechen")
+
+	def success(self, bot, update):
+		print(update.message.text)
+		return 0
+
+
+
 
 	def sendMessage(self, update, message):
 		update.message.reply_text(message)
@@ -149,6 +178,33 @@ class UniBot:
 
 			""".format(update.message.from_user.first_name))
 		return 0
+
+
+	def pick(self, bot, update):
+		keyboard = []
+		for entry in self.entries:
+			print(entry.fach)
+			keyboard.append([InlineKeyboardButton(entry.fach, callback_data=entry.fach)])
+
+		reply_markup = InlineKeyboardMarkup(keyboard)
+
+		update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
+		return 1
+
+
+	def button(self, bot, update):
+	    query = update.callback_query
+	    print(query.data)
+	    bot.edit_message_text(text="Selected option: {}".format(query.data),
+	                          chat_id=query.message.chat_id,
+	                          message_id=query.message.message_id)
+
+	    self.newtasks[str(query.message.from_user.id)] = [query.data]
+
+
+	    self.inputTaskTitle(bot, update)
+
 
 
 
