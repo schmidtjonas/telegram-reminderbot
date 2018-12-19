@@ -1,9 +1,9 @@
 import pickle
 from datetime import datetime
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler, \
+	CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
 
 from entry import *
 from task import *
@@ -82,14 +82,14 @@ class UniBot:
 
 		self.handler = [CommandHandler('hello', self.hello),
 
-						CommandHandler('add', self.add, pass_args = True),
-						CommandHandler('delete', self.deleteFach, pass_args = True),
-						CommandHandler('faecher', self.faecher),
-						CommandHandler('subscribe', self.subscribe, pass_args = True),
-						CommandHandler('unsubscribe', self.unsubscribe, pass_args = True),
-						CommandHandler('status', self.status),
-						CommandHandler('newtask', self.newtask)
-						]
+		                CommandHandler('add', self.add, pass_args=True),
+		                CommandHandler('delete', self.deleteFach, pass_args=True),
+		                CommandHandler('faecher', self.faecher),
+		                CommandHandler('subscribe', self.subscribe, pass_args=True),
+		                CommandHandler('unsubscribe', self.unsubscribe, pass_args=True),
+		                CommandHandler('status', self.status),
+		                CommandHandler('newtask', self.newtask)
+		                ]
 
 		fachfilter = FachFilter()
 		zeitfilter = ZeitFilter()
@@ -156,12 +156,13 @@ class UniBot:
 
 		entry = self.findEntry(data[0])
 
-		job = job_queue.run_once(entry.remind, zeit , context=data[1])
+		job = job_queue.run_once(entry.remind, zeit, context=data[1])
 		chat_data['job'] = job
 
 		self.sendMessage(update, "Du hast die Task " + data[1] + " in " + data[0] + " hinzugefügt!")
-		sendOperationtoAdmins('addtask: ' + data[1] + ' in ' + data[0] + ', ' + str(update.message.from_user.first_name) + ' in ' + str(zeit))
-
+		sendOperationtoAdmins(
+			'addtask: ' + data[1] + ' in ' + data[0] + ', ' + str(update.message.from_user.first_name) + ' in ' + str(
+				zeit))
 
 		return 0
 
@@ -177,19 +178,16 @@ class UniBot:
 
 		return 1
 
-
 	def button(self, bot, update):
 		query = update.callback_query
 		print(query.data)
 		bot.edit_message_text(text="Selected option: {}".format(query.data),
-							  chat_id=query.message.chat_id,
-							  message_id=query.message.message_id)
+		                      chat_id=query.message.chat_id,
+		                      message_id=query.message.message_id)
 
 		self.newtasks[str(query.message.chat_id)] = [query.data]
 
-
 		return self.inputTaskTitle(bot, update)
-
 
 	def sendMessage(self, update, message):
 		update.message.reply_text(message)
@@ -212,7 +210,6 @@ class UniBot:
 
 			""".format(update.message.from_user.first_name))
 		return 0
-
 
 	def hello(self, bot, update):
 		self.sendMessage(update,
@@ -291,7 +288,8 @@ class UniBot:
 		chat_data['job'] = job
 
 		self.sendMessage(update, "Du hast die Task " + args[1] + " in " + fach + " hinzugefügt!")
-		sendOperationtoAdmins('addtask: ' + args[1] + ' in ' + fach + ', ' + str(update.message.from_user.first_name) + ' in ' + args[0])
+		sendOperationtoAdmins(
+			'addtask: ' + args[1] + ' in ' + fach + ', ' + str(update.message.from_user.first_name) + ' in ' + args[0])
 
 	def findEntry(self, fach):  # find Entryobj by fach
 		print('find')
