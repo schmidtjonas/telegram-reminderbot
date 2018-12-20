@@ -1,5 +1,5 @@
 import pickle
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter, ConversationHandler, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
@@ -157,9 +157,37 @@ class UniBot:
 	def inputTaskTime(self, bot, update):
 		self.newtasks[str(update.message.from_user.id)].append(update.message.text)
 
-		self.sendMessage(update, "Bitte gib eine Zeit an!\nFormat: dd.mm.yyyy HH:MM\n/c zum abbrechen")
+		self.sendMessage(update, "Bitte gib Datum und Uhrzeit des Termins an! Du wirst gleich gefragt wann die Abonennten erinnert werden sollen.\nFormat: dd.mm.yyyy HH:MM\n/c zum abbrechen")
 
 		return 3
+
+	def inputTaskRemindTime(self, bot, update):
+		zeit = datetime.strptime(update.message.text, "%d.%m.%Y %H:%M")
+		self.newtasks[str(update.message.from_user.id)].append(zeit)
+
+		keyboard = [[InlineKeyboardButton("am Termin", callback_data=0)]]
+
+		# wenn die Termine in der Zukunft liegen
+		if zeit - timedelta(hours= 3) > datetime.now():
+					keyboard.append([InlineKeyboardButton("3 Stunden vorher", callback_data=1)])
+		if (zeit - timedelta(day=1)).replace(hour = 20) > datetime.now():
+					keyboard.append([InlineKeyboardButton("am Abend vorher", callback_data=2)])
+					
+		reply_markup = InlineKeyboardMarkup(keyboard)
+
+		update.message.reply_text('Wann soll die Erinnerung gesendet werden?', reply_markup=reply_markup)
+		return 4
+
+	def buttonremind(self, bot, update, job_queue, chat_data):
+		query = update.callback_query
+		print(query.data)
+		bot.delete_message(chat_id=query.message.chat_id,
+		message_id=query.message.message_id)
+
+		self.newtasks[str(query.message.chat_id)].append(query.data)
+
+		return self.inputTaskTitle(bot, update, job_queue, chat_data)
+
 
 	def taskCreated(self, bot, update, job_queue, chat_data):
 		data = self.newtasks[str(update.message.from_user.id)]
@@ -222,7 +250,8 @@ class UniBot:
 	def start(self, bot, update):
 		self.sendMessage(update, """
 			Willkommen {}, \nich soll in Zukunft an Übungsabgaben und Veranstaltungen erinnern. 
-Bitte teste ob ich auf deinem Gerät soweit gut funktioniere. Bei Fehlern oder Verbesserungsvorschlägen nutze gerne die entsprechenden Befehle!
+Du kannst neue Fächer anlegen und andere Fächer abonnieren um Reminder zu erhalten. Außerdem kannst du Tasks erstellen. Alle Abonennten des Fachs werden dann an den Termin erinnert.
+Bei Fehlern oder Verbesserungsvorschlägen nutze gerne die entsprechenden Befehle!
 			\n---- Befehle: ----
 			/add FACH um ein neues Fach erstellen
 			/delete FACH um ein Fach zu löschen
@@ -330,7 +359,6 @@ Bitte teste ob ich auf deinem Gerät soweit gut funktioniere. Bei Fehlern oder V
 			while True:
 				try:
 					e = pickle.load(input)
-					print(e.fach)
 					self.entries.append(e)
 				except:
 					break
