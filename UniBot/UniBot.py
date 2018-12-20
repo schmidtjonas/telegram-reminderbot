@@ -109,15 +109,18 @@ class UniBot:
 				0: self.handler,
 
 				1: [CommandHandler('c', self.cancel),
-				    MessageHandler(fachfilter, self.inputTaskTitle),
+
 				    CallbackQueryHandler(self.button)],
 
 				2: [CommandHandler('c', self.cancel),
 				    MessageHandler(Filters.text, self.inputTaskTime)],
 
 				3: [CommandHandler('c', self.cancel),
-				    MessageHandler(zeitfilter, self.taskCreated, pass_job_queue=True, pass_chat_data=True),
-				    MessageHandler(notzeitfilter, self.error)]
+				    MessageHandler(zeitfilter, self.inputTaskRemindTime),
+				    MessageHandler(notzeitfilter, self.error)],
+
+				4: [CommandHandler('c', self.cancel),
+					CallbackQueryHandler(self.buttonremind, pass_job_queue=True, pass_chat_data=True)]
 			},
 
 			fallbacks=[MessageHandler(Filters.command, self.help)])
@@ -161,6 +164,7 @@ class UniBot:
 
 		return 3
 
+########
 	def inputTaskRemindTime(self, bot, update):
 		zeit = datetime.strptime(update.message.text, "%d.%m.%Y %H:%M")
 		self.newtasks[str(update.message.from_user.id)].append(zeit)
@@ -170,9 +174,9 @@ class UniBot:
 		# wenn die Termine in der Zukunft liegen
 		if zeit - timedelta(hours= 3) > datetime.now():
 					keyboard.append([InlineKeyboardButton("3 Stunden vorher", callback_data=1)])
-		if (zeit - timedelta(day=1)).replace(hour = 20) > datetime.now():
+		if (zeit - timedelta(days=1)).replace(hour = 20) > datetime.now():
 					keyboard.append([InlineKeyboardButton("am Abend vorher", callback_data=2)])
-					
+
 		reply_markup = InlineKeyboardMarkup(keyboard)
 
 		update.message.reply_text('Wann soll die Erinnerung gesendet werden?', reply_markup=reply_markup)
@@ -186,24 +190,30 @@ class UniBot:
 
 		self.newtasks[str(query.message.chat_id)].append(query.data)
 
-		return self.inputTaskTitle(bot, update, job_queue, chat_data)
+		return self.taskCreated(bot, query, job_queue, chat_data)
+########muss noch eingebunden werden
 
+	def taskCreated(self, bot, query, job_queue, chat_data):
+		data = self.newtasks[str(query.message.chat_id)]
 
-	def taskCreated(self, bot, update, job_queue, chat_data):
-		data = self.newtasks[str(update.message.from_user.id)]
-
-		zeit = datetime.strptime(update.message.text, "%d.%m.%Y %H:%M")
-		t = Task(str(update.message.from_user.id), data[0], data[1], zeit)
+		t = Task(str(query.message.chat_id), data[0], data[1], data[2], data[3])
 
 		entry = self.findEntry(data[0])
 
-		job = job_queue.run_once(entry.remind, zeit, context=data[1])
+		if data[3] == '0':
+			data[3] = data[2]
+		elif data[3] == '1':
+			data[3] = data[2] - timedelta(hours= 3)
+		elif data[3] == '2':
+			data[3] = (data[2] - timedelta(days=1)).replace(hour = 20)
+		print(data)
+		job = job_queue.run_once(entry.remind, data[3], context=data[1])
 		chat_data['job'] = job
 
-		self.sendMessage(update, 'Du hast die Task "' + data[1] + '" in "' + data[0] + '" hinzugefügt!')
+		self.sendMessage(query, 'Du hast die Task "' + data[1] + '" in "' + data[0] + '" hinzugefügt! Sie wird ausgeführt um: ' + str(data[3]))
 		sendOperationtoAdmins(
-			'addtask: ' + data[1] + ' in ' + data[0] + ', ' + str(update.message.from_user.first_name) + ' in ' + str(
-				zeit))
+			'addtask: ' + data[1] + ' in ' + data[0] + ', ' + str(query.message.from_user.first_name) + ' um ' + str(
+				data[3]) + ' für ein Event um ' +str(data[2]))
 
 		return 0
 
@@ -219,6 +229,7 @@ class UniBot:
 
 		for entry in subed:
 			keyboard.append([InlineKeyboardButton(entry.fach, callback_data=entry.fach)])
+			print(entry)
 
 		reply_markup = InlineKeyboardMarkup(keyboard)
 

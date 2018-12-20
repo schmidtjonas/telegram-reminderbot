@@ -6,14 +6,16 @@ import time
 
 
 class Task:
-	def __init__(self, ersteller, fach, titel, zeit):
+	def __init__(self, ersteller, fach, titel, zeit, reminder):
 		self.ersteller = ersteller
 
 		self.titel = titel
 		self.zeit = zeit
 		self.fach = fach
 
+		self.reminder = reminder
+
 
 
 	def __str__(self):
-		return self.fach * " | " + self.titel + " | " + str(self.ersteller) + " | " + str(self.zeit)
+		return self.fach * " | " + self.titel + " | " + str(self.ersteller) + " | " + str(self.zeit) + str(self.reminder)
