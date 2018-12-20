@@ -1,0 +1,1 @@
+beim hochladen einer newtask muss man noch einen Titel angeben, wäre schlauer den Schritt auszulassen und direkt newtask TITEL einzugeben um in der gleichen Struktur wie bei Fächern etc zu bleiben

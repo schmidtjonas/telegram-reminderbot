@@ -10,7 +10,6 @@ from task import *
 
 def sendOperationtoAdmins(message):
 	print(message)
-
 	bot.send_message(chat_id=group, text=message)
 
 
@@ -92,7 +91,12 @@ class UniBot:
 						CommandHandler('subscribe', self.subscribe, pass_args=True),
 						CommandHandler('unsubscribe', self.unsubscribe, pass_args=True),
 						CommandHandler('status', self.status),
-						CommandHandler('newtask', self.newtask)]
+						CommandHandler('newtask', self.newtask),
+
+						CommandHandler('start', self.start),
+						CommandHandler('vorschlag', self.vorschlag, pass_args=True),
+						CommandHandler('report', self.report, pass_args=True),
+						CommandHandler('help', self.help)]
 
 		fachfilter = FachFilter()
 		zeitfilter = ZeitFilter()
@@ -125,6 +129,7 @@ class UniBot:
 		self.updater.dispatcher.add_handler(CommandHandler('vorschlag', self.vorschlag, pass_args=True))
 		self.updater.dispatcher.add_handler(MessageHandler(Filters.command, self.help))
 		self.updater.dispatcher.add_handler(CommandHandler('help', self.help))
+		self.updater.dispatcher.add_handler(CommandHandler('start', self.start))
 
 
 
@@ -224,7 +229,7 @@ Bitte teste ob ich auf deinem Gerät soweit gut funktioniere. Bei Fehlern oder V
 			/faecher um eine Übersicht der Fächer zu erhalten
 			/subscribe FACH um ein Fach zu abonnieren
 			/unsubscribe FACH um ein Fach zu deabonnieren
-			/newtask um einen neuen Task anzulegen
+			/newtask um eine neue Task anzulegen
 			/report BUG um einen Fehler zu melden
 			/vorschlag TEXT für einen Verbesserungsvorschlag
 
@@ -358,18 +363,20 @@ Bitte teste ob ich auf deinem Gerät soweit gut funktioniere. Bei Fehlern oder V
 			self.errorHandler(update, "Bitte schreib eine kurze Nachricht!")
 			return
 		with open(reportfile, "a") as file:
-			file.write(" ".join(args) + "\n")
+			txt = " ".join(args) + "\n"
+			file.write(txt)
 			self.sendMessage(update, "Vielen Danke für deine Hilfe!")
-			print("report")
+			sendOperationtoAdmins("report: " + txt)
 
 	def vorschlag(self, bot, update, args):
 		if not args:
 			self.errorHandler(update, "Bitte schreib eine kurze Nachricht!")
 			return
 		with open(vorschlagfile, "a") as file:
-			file.write(" ".join(args) + "\n")
+			txt = " ".join(args) + "\n"
+			file.write(txt)
 			self.sendMessage(update, "Vielen Danke für deine Hilfe!")
-			print("vorschlag")
+			sendOperationtoAdmins("vorschlag: " + txt)
 
 	def help(self, bot, update):
 		self.sendMessage(update, """---- Befehle: ----
@@ -381,7 +388,7 @@ Bitte teste ob ich auf deinem Gerät soweit gut funktioniere. Bei Fehlern oder V
 			/newtask um einen neuen Task anzulegen
 			/report BUG um einen Fehler zu melden
 			/vorschlag TEXT für einen Verbesserungsvorschlag
-			/c bricht /newtask ab
+			/c falls du /newtask abbrechen möchtest
 			/help für Befehlsliste
 			/start falls gar nichts funktioniert""")
 		return 0
