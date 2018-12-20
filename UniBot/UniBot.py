@@ -96,7 +96,8 @@ class UniBot:
 						CommandHandler('start', self.start),
 						CommandHandler('vorschlag', self.vorschlag, pass_args=True),
 						CommandHandler('report', self.report, pass_args=True),
-						CommandHandler('help', self.help)]
+						CommandHandler('help', self.help),
+						CommandHandler('update', self.updateMessage, pass_args=True)]
 
 		fachfilter = FachFilter()
 		zeitfilter = ZeitFilter()
@@ -130,9 +131,12 @@ class UniBot:
 		self.updater.dispatcher.add_handler(self.conv_handler)
 		self.updater.dispatcher.add_handler(CommandHandler('report', self.report, pass_args=True))
 		self.updater.dispatcher.add_handler(CommandHandler('vorschlag', self.vorschlag, pass_args=True))
-		self.updater.dispatcher.add_handler(MessageHandler(Filters.command, self.help))
 		self.updater.dispatcher.add_handler(CommandHandler('help', self.help))
 		self.updater.dispatcher.add_handler(CommandHandler('start', self.start))
+		self.updater.dispatcher.add_handler(CommandHandler('update', self.updateMessage, pass_args=True))
+
+		self.updater.dispatcher.add_handler(MessageHandler(Filters.command, self.help))
+
 
 
 
@@ -286,10 +290,13 @@ Bei Fehlern oder Verbesserungsvorschlägen nutze gerne die entsprechenden Befehl
 		print('add', args)
 
 		fach = " ".join(args)
-		print(fach)
 
 		if args == []:
-			self.errorHandler(update, "Bitte gib ein gültiges Fach ein. Das Fach darf kein Leerzeichen am Anfang oder Ende enthalten")
+			self.errorHandler(update, "Bitte gib ein gültiges Fach ein.")
+			return
+
+		if len(fach) > 25:
+			self.errorHandler(update, "Der Name deines Fachs ist zu lang.")
 			return
 
 		if self.findEntry(fach) != None:
@@ -431,6 +438,21 @@ Bei Fehlern oder Verbesserungsvorschlägen nutze gerne die entsprechenden Befehl
 			/help für Befehlsliste
 			/start falls gar nichts funktioniert""")
 		return 0
+
+	@restricted
+	def updateMessage(self, bot, update, args):
+		users = []
+		for entry in self.entries:
+			for sub in entry.subscribers:
+				if sub not in users:
+					users.append(sub)
+
+		for user in users:
+			bot.send_message(chat_id=user, text=" ".join(args))
+		return 
+
+
+
 
 
 
