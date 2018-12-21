@@ -14,6 +14,7 @@ class Entry:
 		else:
 			self.datum = datum
 
+
 		self.subscribers = subscribers
 		self.addSubcriber(ersteller)
 		#self.save()

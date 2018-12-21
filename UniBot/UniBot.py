@@ -453,9 +453,6 @@ Bei Fehlern oder Verbesserungsvorschlägen nutze gerne die entsprechenden Befehl
 
 
 
-
-
-
 ###########################################################################
 
 token = '734149613:AAE5mrKSu_FIaVaZJFPpn0TUYowJSabs-uI'
