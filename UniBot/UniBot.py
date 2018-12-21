@@ -29,6 +29,15 @@ class ZeitFilter(BaseFilter):
 		except:
 			return False
 
+class WochenFilter(BaseFilter):
+	def filter(self, message):
+		try:
+			print(message.text)
+			int(message.text)
+			return True
+		except:
+			return False
+
 class NotZeitFilter(BaseFilter):
 	def filter(self, message):
 		try:
@@ -102,6 +111,7 @@ class UniBot:
 		fachfilter = FachFilter()
 		zeitfilter = ZeitFilter()
 		notzeitfilter = NotZeitFilter()
+		wochenfilter = WochenFilter()
 
 
 		self.conv_handler = ConversationHandler(
@@ -121,7 +131,10 @@ class UniBot:
 				    MessageHandler(notzeitfilter, self.error)],
 
 				4: [CommandHandler('c', self.cancel),
-					CallbackQueryHandler(self.buttonremind, pass_job_queue=True, pass_chat_data=True)]
+					CallbackQueryHandler(self.buttonremind)],
+
+				5: [CommandHandler('einmalig', self.singleTaskCreated, pass_job_queue=True, pass_chat_data=True),
+					MessageHandler(wochenfilter, self.repeating, pass_job_queue=True, pass_chat_data=True)]
 			},
 
 			fallbacks=[MessageHandler(Filters.command, self.help)])
@@ -186,7 +199,7 @@ class UniBot:
 		update.message.reply_text('Wann soll die Erinnerung gesendet werden?', reply_markup=reply_markup)
 		return 4
 
-	def buttonremind(self, bot, update, job_queue, chat_data):
+	def buttonremind(self, bot, update):
 		query = update.callback_query
 		print(query.data)
 		bot.delete_message(chat_id=query.message.chat_id,
@@ -194,10 +207,12 @@ class UniBot:
 
 		self.newtasks[str(query.message.chat_id)].append(query.data)
 
-		return self.taskCreated(bot, query, job_queue, chat_data)
+		self.sendMessage(query, "Soll die Erinnerung wiederholt werden? Gib das Intervall in Wochen an!\nWenn du keine Wiederholung willst drücke einfach auf /einmalig.")
+
+		return 5
 ########muss noch eingebunden werden
 
-	def taskCreated(self, bot, query, job_queue, chat_data):
+	def singleTaskCreated(self, bot, query, job_queue, chat_data):
 		data = self.newtasks[str(query.message.chat_id)]
 
 		t = Task(str(query.message.chat_id), data[0], data[1], data[2], data[3])
@@ -220,6 +235,33 @@ class UniBot:
 				data[3]) + ' für ein Event um ' +str(data[2]))
 
 		return 0
+
+	def repeating(self, bot, update, job_queue, chat_data):
+		data = self.newtasks[str(update.message.chat_id)]
+
+		t = Task(str(update.message.chat_id), data[0], data[1], data[2], data[3])
+
+		entry = self.findEntry(data[0])
+
+		if data[3] == '0':
+			data[3] = data[2]
+		elif data[3] == '1':
+			data[3] = data[2] - timedelta(hours= 3)
+		elif data[3] == '2':
+			data[3] = (data[2] - timedelta(days=1)).replace(hour = 20)
+		print(data)
+
+		interval = timedelta(days = 7 *int(update.message.text))
+
+		job = job_queue.run_repeating(entry.remind, interval, first=data[3], context=data[1])
+		chat_data['job'] = job
+
+		self.sendMessage(update, 'Du hast die wiederholte Task "' + data[1] + '" in "' + data[0] + '" hinzugefügt! Sie wird im Intervall ' +update.message.text+ ' Wochen ausgeführt um: ' + str(data[3]))
+		sendOperationtoAdmins(
+			'addrepeatingtask: ' + data[1] + ' in ' + data[0] + ', ' + str(update.message.from_user.first_name) + ' um ' + str(
+				data[3]) + ' für ein Event um ' +str(data[2])+' alle '+update.message.text+' Wochen')
+		return 0
+
 
 	def newtask(self, bot, update):
 		keyboard = []
