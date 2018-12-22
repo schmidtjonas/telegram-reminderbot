@@ -7,6 +7,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from entry import *
 from task import *
 
+from time import *
+
 
 def sendOperationtoAdmins(message):
 	print(message)
@@ -52,7 +54,7 @@ def restricted(func):
 	def wrapped(self, bot, update, *args, **kwargs):
 		user_id = str(update.effective_user.id)
 		if user_id not in admins and str(update.message.chat_id) != group:
-			print("Unauthorized access denied for user:  {}.".format(user_id))
+			print("Unauthorized access denied for user: {}.".format(user_id))
 			self.errorHandler(update, "Du bist nicht berechtigt dies zu tun!")
 			return
 		return func(self, bot, update, *args, **kwargs)
@@ -120,14 +122,14 @@ class UniBot:
 
 				1: [CommandHandler('c', self.cancel),
 
-				    CallbackQueryHandler(self.button)],
+					CallbackQueryHandler(self.button)],
 
 				2: [CommandHandler('c', self.cancel),
-				    MessageHandler(Filters.text, self.inputTaskTime)],
+					MessageHandler(Filters.text, self.inputTaskTime)],
 
 				3: [CommandHandler('c', self.cancel),
-				    MessageHandler(zeitfilter, self.inputTaskRemindTime),
-				    MessageHandler(notzeitfilter, self.error)],
+					MessageHandler(zeitfilter, self.inputTaskRemindTime),
+					MessageHandler(notzeitfilter, self.error)],
 
 				4: [CommandHandler('c', self.cancel),
 					CallbackQueryHandler(self.buttonremind)],
@@ -228,6 +230,7 @@ class UniBot:
 		chat_data['job'] = job
 
 		self.sendMessage(query, 'Du hast die Task "' + data[1] + '" in "' + data[0] + '" hinzugefügt! Sie wird ausgeführt um: ' + str(data[3]))
+		bot.send_sticker(chat_id=query.message.chat_id, sticker=wolle)
 		sendOperationtoAdmins(
 			'addtask: ' + data[1] + ' in ' + data[0] + ', ' + str(query.message.from_user.first_name) + ' um ' + str(
 				data[3]) + ' für ein Event um ' +str(data[2]))
@@ -255,6 +258,8 @@ class UniBot:
 		chat_data['job'] = job
 
 		self.sendMessage(update, 'Du hast die wiederholte Task "' + data[1] + '" in "' + data[0] + '" hinzugefügt! Sie wird im Intervall ' +update.message.text+ ' Wochen ausgeführt um: ' + str(data[3]))
+		bot.send_sticker(chat_id=query.message.chat_id, sticker=wolle)
+
 		sendOperationtoAdmins(
 			'addrepeatingtask: ' + data[1] + ' in ' + data[0] + ', ' + str(update.message.from_user.first_name) + ' um ' + str(
 				data[3]) + ' für ein Event um ' +str(data[2])+' alle '+update.message.text+' Wochen')
@@ -502,6 +507,7 @@ admins = ['691400978', '636733660', '672114483']  # jonas, rohan, robert
 
 reportfile = "report.txt"
 vorschlagfile = "vorschlag.txt"
+wolle = "CAADAgADGwADsdIhGbWUESxD4JGvAg"
 
 ###########################################################################
 
@@ -510,5 +516,7 @@ bot = Bot(token)
 testbot = Bot(token2)
 
 chat = Chat(group, 'group')
+
+
 
 b = UniBot()  # True als Parameter erstellt ein komplett neues File
