@@ -32,7 +32,6 @@ class ZeitFilter(BaseFilter):
 class WochenFilter(BaseFilter):
 	def filter(self, message):
 		try:
-			print(message.text)
 			int(message.text)
 			return True
 		except:
@@ -47,7 +46,7 @@ class NotZeitFilter(BaseFilter):
 			return True
 
 
-# erlaube operation nur für admins: @restricted vor Function
+# erlaube operation nur fuer admins: @restricted vor Function
 
 def restricted(func):
 	def wrapped(self, bot, update, *args, **kwargs):
@@ -201,7 +200,6 @@ class UniBot:
 
 	def buttonremind(self, bot, update):
 		query = update.callback_query
-		print(query.data)
 		bot.delete_message(chat_id=query.message.chat_id,
 		message_id=query.message.message_id)
 
