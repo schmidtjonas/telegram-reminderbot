@@ -172,7 +172,7 @@ class UniBot:
 		return 0
 
 	def inputTaskTitle(self, bot, update):
-		self.sendMessage(update.callback_query, "Bitte gib ein Titel an!\n/c zum abbrechen")
+		self.sendMessage(update.callback_query, "Bitte gib einen Titel an!\n/c zum abbrechen")
 		return 2
 
 	def inputTaskTime(self, bot, update):
