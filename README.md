@@ -8,3 +8,6 @@ ein schöner ReminderBot für Uni Abgaben!
 **Telegram-Username:** @HassoReminderbot
 
 `/start` to start
+
+## Installation
+You need a file named `config.py` with admin user-ids as a list of strings named `admin`, a groupid `group` and `token`.

@@ -9,6 +9,8 @@ from task import *
 
 from time import *
 
+from config import *
+
 
 def sendOperationtoAdmins(message):
 	print(message)
