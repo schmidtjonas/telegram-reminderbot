@@ -1,8 +1,8 @@
 # Telegram ReminderBot
 
-ein schöner ReminderBot für Uni Abgaben!
+a simple telegrambot to remind you to submit uni work
 
-(und um Lukas zuzuspammen)
+** currently not online **
 
 ## Usage
 **Telegram-Username:** @HassoReminderbot
